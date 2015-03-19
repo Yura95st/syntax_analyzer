@@ -59,9 +59,7 @@ public class GrammarTest
 		// Arrange
 		Rule firstRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
 
-		firstRule.setNodes(Arrays.asList(new Node[] {
-			new Node(NodeKind.Nonterminal, "another-node")
-		}));
+		firstRule.addNode(new Node(NodeKind.Nonterminal, "another-node"));
 
 		this._grammar.addRule(firstRule);
 
@@ -118,9 +116,7 @@ public class GrammarTest
 		// Arrange
 		Rule firstRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
 
-		firstRule.setNodes(Arrays.asList(new Node[] {
-			new Node(NodeKind.Nonterminal, "another-node")
-		}));
+		firstRule.addNode(new Node(NodeKind.Nonterminal, "another-node"));
 
 		Rule testRule = new Rule(firstRule.getHeadNode());
 

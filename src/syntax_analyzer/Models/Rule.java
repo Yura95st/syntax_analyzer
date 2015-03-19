@@ -92,10 +92,20 @@ public class Rule
 		return result;
 	}
 
-	public void setNodes(List<Node> nodes)
+	public void addNode(Node node)
 	{
-		Guard.notNull(nodes, "nodes");
+		Guard.notNull(node, "node");
 
-		this._nodes = new ArrayList<Node>(nodes);
+		this._nodes.add(node);
+	}
+
+	public void deleteNode(Node node)
+	{
+		Guard.notNull(node, "node");
+
+		if (this._nodes.contains(node))
+		{
+			this._nodes.remove(node);
+		}
 	}
 }
