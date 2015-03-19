@@ -1,5 +1,8 @@
 package syntax_analyzer.Models;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,10 +14,10 @@ import syntax_analyzer.Exceptions.RuleAlreadyExistsException;
 public class GrammarTest
 {
 	Grammar _grammar;
-	
+
 	@Test(expected = RuleAlreadyExistsException.class)
 	public void addRule_RuleAlreadyExists_ThrowsRuleAlreadyExistsException()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		Rule testRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
@@ -27,14 +30,14 @@ public class GrammarTest
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addRule_RuleIsNull_ThrowsIllegalArgumentException()
-			throws Exception
+		throws Exception
 	{
 		this._grammar.addRule(null);
 	}
-	
+
 	@Test
 	public void addRule_RuleIsValid_AddsRuleToTheRulesDictionary()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		Rule testRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
@@ -43,40 +46,69 @@ public class GrammarTest
 		this._grammar.addRule(testRule);
 
 		// Assert
-		Rule rule = this._grammar.getRule(testRule.getHeadNode());
+		List<Rule> rules = this._grammar.getRules(testRule.getHeadNode());
 
-		Assert.assertEquals(testRule, rule);
+		Assert.assertEquals(1, rules.size());
+		Assert.assertEquals(testRule, rules.get(0));
+	}
+
+	@Test
+	public void addRule_RuleWithSameHeadNodeAlreadyExists_AppendsRuleToTheRulesDictionary()
+		throws Exception
+	{
+		// Arrange
+		Rule firstRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
+
+		firstRule.setNodes(Arrays.asList(new Node[] {
+			new Node(NodeKind.Nonterminal, "another-node")
+		}));
+
+		this._grammar.addRule(firstRule);
+
+		int size = this._grammar.getRules(firstRule.getHeadNode()).size();
+
+		Rule testRule = new Rule(firstRule.getHeadNode());
+
+		// Act
+		this._grammar.addRule(testRule);
+
+		// Assert
+		List<Rule> rules = this._grammar.getRules(testRule.getHeadNode());
+
+		Assert.assertEquals(size + 1, rules.size());
+		Assert.assertTrue(rules.contains(testRule));
 	}
 
 	@Test(expected = NonexistentRuleException.class)
 	public void deleteRule_NonexistentRule_ThrowsNonexistentRuleException()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		Rule testRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
-		
+
 		// Act & Assert
 		this._grammar.deleteRule(testRule);
 	}
 
 	@Test
 	public void deleteRule_RuleIsTheHeadRule_DeletesRuleAndSetsHeadRuleToNull()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		Rule testHeadRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
-		
+
 		this._grammar.addRule(testHeadRule);
 		this._grammar.setHeadRule(testHeadRule);
-		
+
 		// Act
 		this._grammar.deleteRule(testHeadRule);
-		
+
 		// Assert
-		Rule rule = this._grammar.getRule(testHeadRule.getHeadNode());
+		List<Rule> rules = this._grammar.getRules(testHeadRule.getHeadNode());
+
 		Rule headRule = this._grammar.getHeadRule();
-		
-		Assert.assertEquals(null, rule);
+
+		Assert.assertEquals(0, rules.size());
 		Assert.assertEquals(null, headRule);
 	}
 
@@ -84,27 +116,37 @@ public class GrammarTest
 	public void deleteRule_RuleIsValid_DeletesRule() throws Exception
 	{
 		// Arrange
-		Rule testRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
-		
+		Rule firstRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
+
+		firstRule.setNodes(Arrays.asList(new Node[] {
+			new Node(NodeKind.Nonterminal, "another-node")
+		}));
+
+		Rule testRule = new Rule(firstRule.getHeadNode());
+
+		this._grammar.addRule(firstRule);
 		this._grammar.addRule(testRule);
-		
+
+		int size = this._grammar.getRules(firstRule.getHeadNode()).size();
+
 		// Act
 		this._grammar.deleteRule(testRule);
-		
+
 		// Assert
-		Rule rule = this._grammar.getRule(testRule.getHeadNode());
-		
-		Assert.assertEquals(null, rule);
+		List<Rule> rules = this._grammar.getRules(testRule.getHeadNode());
+
+		Assert.assertEquals(size - 1, rules.size());
+		Assert.assertFalse(rules.contains(testRule));
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
-	public void getRule_HeadNodeIsNull_ThrowsIllegalArgumentException()
+	public void getRules_HeadNodeIsNull_ThrowsIllegalArgumentException()
 	{
-		this._grammar.getRule(null);
+		this._grammar.getRules(null);
 	}
-	
+
 	@Test
-	public void getRule_HeadNodeIsValid_ReturnsRule() throws Exception
+	public void getRules_HeadNodeIsValid_ReturnsRules() throws Exception
 	{
 		// Arrange
 		Rule testRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
@@ -112,28 +154,28 @@ public class GrammarTest
 		this._grammar.addRule(testRule);
 
 		// Act
-		Rule rule = this._grammar.getRule(testRule.getHeadNode());
+		List<Rule> rules = this._grammar.getRules(testRule.getHeadNode());
 
 		// Assert
-		Assert.assertEquals(testRule, rule);
+		Assert.assertEquals(testRule, rules.get(0));
 	}
-	
+
 	@Test
-	public void getRule_NonexistentHeadNode_ReturnsNull()
+	public void getRules_NonexistentHeadNode_ReturnsEmptyList()
 	{
 		// Arrange
 		Node headNode = new Node(NodeKind.Nonterminal, "node");
 
 		// Act
-		Rule rule = this._grammar.getRule(headNode);
+		List<Rule> rules = this._grammar.getRules(headNode);
 
 		// Assert
-		Assert.assertEquals(null, rule);
+		Assert.assertEquals(0, rules.size());
 	}
 
 	@Test
 	public void setHeadRule_HeadRuleIsNull_SetsHeadRuleAsNull()
-		throws Exception
+			throws Exception
 	{
 		// Arrange
 		Rule testHeadRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
@@ -150,7 +192,7 @@ public class GrammarTest
 
 		Assert.assertEquals(null, headRule);
 	}
-	
+
 	@Test
 	public void setHeadRule_HeadRuleIsValid_SetsNewHeadRule() throws Exception
 	{
@@ -170,19 +212,19 @@ public class GrammarTest
 
 	@Test(expected = NonexistentRuleException.class)
 	public void setHeadRule_NonexistentHeadRule_ThrowsNonexistentRuleException()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		Rule testRule = new Rule(new Node(NodeKind.Nonterminal, "node"));
-		
+
 		// Act & Assert
 		this._grammar.setHeadRule(testRule);
 	}
-	
+
 	@Before
 	public void setUp() throws Exception
 	{
 		this._grammar = new Grammar();
 	}
-	
+
 }

@@ -8,18 +8,18 @@ import syntax_analyzer.Utils.Guard;
 public class Rule
 {
 	private Node _headNode;
-	
+
 	private List<Node> _nodes;
 
 	public Rule(Node headNode)
 	{
 		Guard.notNull(headNode, "headNode");
-		
+
 		this._headNode = headNode;
-		
+
 		this._nodes = new ArrayList<Node>();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -96,12 +96,6 @@ public class Rule
 	{
 		Guard.notNull(nodes, "nodes");
 
-		for (Node node : nodes)
-		{
-			if (node != null)
-			{
-				this._nodes.add(node);
-			}
-		}
+		this._nodes = new ArrayList<Node>(nodes);
 	}
 }
