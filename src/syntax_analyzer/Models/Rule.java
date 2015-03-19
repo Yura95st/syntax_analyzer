@@ -7,7 +7,7 @@ import syntax_analyzer.Utils.Guard;
 
 public class Rule
 {
-	private Node _head;
+	private Node _headNode;
 	
 	private List<Node> _nodes;
 
@@ -15,7 +15,7 @@ public class Rule
 	{
 		Guard.notNull(headNode, "headNode");
 		
-		this._head = headNode;
+		this._headNode = headNode;
 		
 		this._nodes = new ArrayList<Node>();
 	}
@@ -40,14 +40,14 @@ public class Rule
 
 		Rule other = (Rule) obj;
 
-		if (this._head == null)
+		if (this._headNode == null)
 		{
-			if (other._head != null)
+			if (other._headNode != null)
 			{
 				return false;
 			}
 		}
-		else if (!this._head.equals(other._head))
+		else if (!this._headNode.equals(other._headNode))
 		{
 			return false;
 		}
@@ -67,9 +67,9 @@ public class Rule
 		return true;
 	}
 
-	public Node getHead()
+	public Node getHeadNode()
 	{
-		return this._head;
+		return this._headNode;
 	}
 
 	public List<Node> getNodes()
@@ -84,7 +84,7 @@ public class Rule
 		int result = 1;
 
 		result = prime * result
-				+ ((this._head == null) ? 0 : this._head.hashCode());
+				+ ((this._headNode == null) ? 0 : this._headNode.hashCode());
 
 		result = prime * result
 				+ ((this._nodes == null) ? 0 : this._nodes.hashCode());
