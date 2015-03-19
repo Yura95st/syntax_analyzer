@@ -43,21 +43,21 @@ public class GrammarParserTest
 		}; // A = B | "c" .
 
 		// Arrange - create rules
-		Rule firstRule = new Rule(nodeA);
+		Rule ruleOne = new Rule(nodeA);
 
-		firstRule.addNode(nodeB);
+		ruleOne.addNode(nodeB);
 
-		Rule secondRule = new Rule(nodeA);
+		Rule ruleTwo = new Rule(nodeA);
 
-		secondRule.addNode(nodeC);
+		ruleTwo.addNode(nodeC);
 
 		// Arrange - create test grammar
 		Grammar testGrammar = new Grammar();
 
-		testGrammar.addRule(firstRule);
-		testGrammar.addRule(secondRule);
+		testGrammar.addRule(ruleOne);
+		testGrammar.addRule(ruleTwo);
 
-		testGrammar.setHeadRule(firstRule);
+		testGrammar.setHeadRule(ruleOne);
 
 		this._grammarParser.setNodes(Arrays.asList(nodes));
 
@@ -264,21 +264,21 @@ public class GrammarParserTest
 		}; // A = B , "c" . B = "d" .
 
 		// Arrange - create rules
-		Rule firstRule = new Rule(nodeA);
+		Rule ruleOne = new Rule(nodeA);
 
-		firstRule.addNode(nodeB);
-		firstRule.addNode(nodeC);
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeC);
 
-		Rule secondRule = new Rule(nodeB);
+		Rule ruleTwo = new Rule(nodeB);
 
-		secondRule.addNode(nodeD);
+		ruleTwo.addNode(nodeD);
 
 		// Arrange - create test grammar
 		Grammar testGrammar = new Grammar();
 
-		testGrammar.addRule(firstRule);
-		testGrammar.addRule(secondRule);
-		testGrammar.setHeadRule(firstRule);
+		testGrammar.addRule(ruleOne);
+		testGrammar.addRule(ruleTwo);
+		testGrammar.setHeadRule(ruleOne);
 
 		this._grammarParser.setNodes(Arrays.asList(nodes));
 

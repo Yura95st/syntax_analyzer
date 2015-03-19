@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import syntax_analyzer.Enums.SpecialNodeKind;
-import syntax_analyzer.Exceptions.InvalidGrammarException;
 import syntax_analyzer.Exceptions.SpecialNodeIsNotDefinedException;
 import syntax_analyzer.Models.Grammar;
 import syntax_analyzer.Models.Node;
@@ -29,7 +28,8 @@ public interface IGrammarParser
 	 * Parses the nodes.
 	 *
 	 * @return the grammar parsed from the nodes
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	Grammar parse() throws Exception;
 	

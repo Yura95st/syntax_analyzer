@@ -6,9 +6,9 @@ import syntax_analyzer.Enums.NodeKind;
 
 public class NodeDefinition
 {
-	private NodeKind _kind;
+	private final NodeKind _kind;
 	
-	private Pattern _representation;
+	private final Pattern _representation;
 	
 	public NodeDefinition(String representation, NodeKind kind)
 	{

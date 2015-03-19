@@ -277,7 +277,8 @@ public class GrammarParser implements IGrammarParser
 			Rule lastRule = this._rules.peek();
 
 			throw new InvalidGrammarException(String.format(
-				"Invalid grammar at rule with head node '%1$s'.", lastRule.getHeadNode().getText()));
+				"Invalid grammar at rule with head node '%1$s'.", lastRule
+				.getHeadNode().getText()));
 		}
 	}
 

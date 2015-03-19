@@ -5,9 +5,9 @@ import syntax_analyzer.Utils.Guard;
 
 public class Node
 {
-	private NodeKind _kind;
+	private final NodeKind _kind;
 	
-	private String _text;
+	private final String _text;
 
 	public Node(NodeKind nodeKind, String text)
 	{

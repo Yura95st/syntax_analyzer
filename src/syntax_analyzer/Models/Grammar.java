@@ -14,7 +14,7 @@ public class Grammar
 {
 	private Rule _headRule;
 
-	private Map<Node, List<Rule>> _rulesDictionary;
+	private final Map<Node, List<Rule>> _rulesDictionary;
 
 	public Grammar()
 	{
