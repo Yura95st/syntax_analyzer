@@ -50,6 +50,53 @@ public class Grammar
 		this._rulesDictionary.remove(rule.getHeadNode());
 	}
 	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+
+		if (obj == null)
+		{
+			return false;
+		}
+
+		if (this.getClass() != obj.getClass())
+		{
+			return false;
+		}
+
+		Grammar other = (Grammar) obj;
+
+		if (this._headRule == null)
+		{
+			if (other._headRule != null)
+			{
+				return false;
+			}
+		}
+		else if (!this._headRule.equals(other._headRule))
+		{
+			return false;
+		}
+
+		if (this._rulesDictionary == null)
+		{
+			if (other._rulesDictionary != null)
+			{
+				return false;
+			}
+		}
+		else if (!this._rulesDictionary.equals(other._rulesDictionary))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	public Rule getHeadRule()
 	{
 		return this._headRule;
@@ -61,10 +108,27 @@ public class Grammar
 
 		return this._rulesDictionary.get(headNode);
 	}
-	
+
 	public Map<Node, Rule> getRulesDictionary()
 	{
 		return new HashMap<Node, Rule>(this._rulesDictionary);
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result
+			+ ((this._headRule == null) ? 0 : this._headRule.hashCode());
+
+		result = prime
+				* result
+			+ ((this._rulesDictionary == null) ? 0 : this._rulesDictionary
+					.hashCode());
+
+		return result;
 	}
 
 	public void setHeadRule(Rule headRule) throws NonexistentRuleException
