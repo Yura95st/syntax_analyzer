@@ -23,7 +23,6 @@ public class GrammarLexer implements IGrammarLexer
 	
 	public GrammarLexer()
 	{
-		this._offset = 0;
 		this._source = "";
 
 		this._nodeDefinitions = new ArrayList<NodeDefinition>() {
@@ -69,6 +68,8 @@ public class GrammarLexer implements IGrammarLexer
 	public List<Node> parse()
 	{
 		List<Node> nodes = new ArrayList<Node>();
+		
+		this._offset = 0;
 
 		while (this.isInBounds())
 		{
