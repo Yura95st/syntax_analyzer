@@ -12,9 +12,9 @@ import syntax_analyzer.Utils.Guard;
 
 public class Grammar
 {
-	Rule _headRule;
+	private Rule _headRule;
 
-	Map<Node, List<Rule>> _rulesDictionary;
+	private Map<Node, List<Rule>> _rulesDictionary;
 
 	public Grammar()
 	{
