@@ -3,6 +3,34 @@ package syntax_analyzer.Utils;
 public class Guard
 {
 	/**
+	 * Checks if the specified list is not null and doesn't contain any null
+	 * element.
+	 *
+	 * @param <T>
+	 *            the generic type
+	 * @param list
+	 *            the list to test
+	 * @param listName
+	 *            the list's name
+	 */
+	public static <T> void listAndElementsNotNull(Iterable<T> list,
+		String listName)
+	{
+		Guard.notNull(list, listName);
+		
+		for (T element : list)
+		{
+			if (element == null)
+			{
+				throw new IllegalArgumentException(
+					String.format(
+						"Argument '%1$s' can't contain elements, that are equal to null.",
+						listName));
+			}
+		}
+	}
+
+	/**
 	 * Checks if the specified list is not null or empty.
 	 *
 	 * @param <T>
@@ -19,10 +47,10 @@ public class Guard
 		if (!list.iterator().hasNext())
 		{
 			throw new IllegalArgumentException(String.format(
-				"List can't be empty: %1$s", listName));
+				"List '%1$s' can't be empty.", listName));
 		}
 	}
-
+	
 	/**
 	 * Checks if the specified argument is more or equal to zero.
 	 *
@@ -36,10 +64,10 @@ public class Guard
 		if (argument < 0)
 		{
 			throw new IllegalArgumentException(String.format(
-				"Argument can't be less, than 0: %1$s", argumentName));
+				"Argument '%1$s' can't be less, than 0.", argumentName));
 		}
 	}
-	
+
 	/**
 	 * Checks if the specified argument is more or equal to zero.
 	 *
@@ -53,7 +81,7 @@ public class Guard
 		if (argument < 0)
 		{
 			throw new IllegalArgumentException(String.format(
-				"Argument can't be less, than 0: %1$s", argumentName));
+				"Argument '%1$s' can't be less, than 0.", argumentName));
 		}
 	}
 
@@ -70,10 +98,10 @@ public class Guard
 		if (argument <= 0)
 		{
 			throw new IllegalArgumentException(String.format(
-				"Argument can't be less or equal to 0: %1$s", argumentName));
+				"Argument '%1$s' can't be less or equal to 0.", argumentName));
 		}
 	}
-
+	
 	/**
 	 * Checks if the specified argument is not null.
 	 *
@@ -87,8 +115,8 @@ public class Guard
 		if (argument == null)
 		{
 			throw new IllegalArgumentException(String.format(
-				"Argument can't be null: %1$s", argumentName));
+				"Argument '%1$s' can't be null.", argumentName));
 		}
 	}
-	
+
 }
