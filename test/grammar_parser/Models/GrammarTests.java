@@ -11,7 +11,7 @@ import grammar_parser.Enums.NodeKind;
 import grammar_parser.Exceptions.NonexistentRuleException;
 import grammar_parser.Exceptions.RuleAlreadyExistsException;
 
-public class GrammarTest
+public class GrammarTests
 {
 	Grammar _grammar;
 

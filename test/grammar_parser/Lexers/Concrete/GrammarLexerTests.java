@@ -11,7 +11,7 @@ import grammar_parser.Enums.NodeKind;
 import grammar_parser.Lexers.Abstract.IGrammarLexer;
 import grammar_parser.Models.Node;
 
-public class GrammarLexerTest
+public class GrammarLexerTests
 {
 	IGrammarLexer _grammarLexer;
 

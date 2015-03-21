@@ -18,7 +18,7 @@ import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
 import grammar_parser.Parsers.Abstract.IGrammarParser;
 
-public class GrammarParserTest
+public class GrammarParserTests
 {
 	private Map<SpecialNodeKind, Node> _specialNodesDictionary;
 
