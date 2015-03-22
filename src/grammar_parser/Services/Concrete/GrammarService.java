@@ -138,11 +138,18 @@ public class GrammarService implements IGrammarService
 
 		Set<Rule> rightRecursiveRules = new HashSet<Rule>();
 
+		// <node, value>:
+		// value is "true" - exists at least one empty rule (epsilon-rule),
+		// that starts from node.
+		// value is "false" - all the rules, that start with the node
+		// are not empty.
+		Map<Node, Boolean> ruleHeadNodesMarks = new HashMap<Node, Boolean>();
+
 		for (List<Rule> rules : grammar.getRulesDictionary().values())
 		{
 			for (Rule rule : rules)
 			{
-				if (this.isRightRecursiveRule(rule, grammar))
+				if (this.isRightRecursiveRule(rule, grammar, ruleHeadNodesMarks))
 				{
 					rightRecursiveRules.add(rule);
 				}
@@ -160,17 +167,11 @@ public class GrammarService implements IGrammarService
 		return entry;
 	}
 
-	private boolean isRightRecursiveRule(Rule rule, Grammar grammar)
+	private boolean isRightRecursiveRule(Rule rule, Grammar grammar,
+		Map<Node, Boolean> ruleHeadNodesMarks)
 	{
 		Stack<Rule> rulesStack = new Stack<Rule>();
 		Set<Rule> poppedRules = new HashSet<Rule>();
-
-		// <node, value>:
-		// value is "true" - exists at least one empty rule (epsilon-rule), that
-		// starts from node.
-		// value is "false" - all the rules, that start with the node are not
-		// empty.
-		Map<Node, Boolean> ruleHeadNodesMarks = new HashMap<Node, Boolean>();
 
 		rulesStack.add(rule);
 
