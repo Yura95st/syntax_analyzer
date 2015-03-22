@@ -11,6 +11,7 @@ import grammar_parser.Utils.Guard;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -262,11 +263,7 @@ public class GrammarService implements IGrammarService
 				{
 					Word word = new Word();
 
-					word.setNodes(new ArrayList<Node>() {
-						{
-							this.add(firstNode);
-						}
-					});
+					word.setNodes(Arrays.asList(firstNode));
 
 					// Add word to the dictionary
 					firstSetsDictionary.get(topEntryRule).add(word);

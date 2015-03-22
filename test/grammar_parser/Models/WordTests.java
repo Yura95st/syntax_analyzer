@@ -40,7 +40,7 @@ public class WordTests
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setNodes_NodesListIsNull_ThrowsIllegalArgumentException()
-			throws Exception
+		throws Exception
 	{
 		// Act & Assert
 		this._word.setNodes(null);
@@ -51,11 +51,9 @@ public class WordTests
 	{
 		// Arrange
 		List<Node> testNodes =
-			Arrays.asList(new Node[] {
-				new Node(NodeKind.Terminal, "terminalOne"),
-				new Node(NodeKind.Terminal, "terminalTwo"),
-				new Node(NodeKind.Terminal, "terminalThree")
-			});
+			Arrays.asList(new Node(NodeKind.Terminal, "terminalOne"), new Node(
+				NodeKind.Terminal, "terminalTwo"), new Node(NodeKind.Terminal,
+				"terminalThree"));
 
 		// Act
 		this._word.setNodes(testNodes);
@@ -69,14 +67,12 @@ public class WordTests
 
 	@Test(expected = NodeIsNotTerminalException.class)
 	public void setNodes_OneOfTheNodesIsNotTerminal_ThrowsNodeIsNotTerminalException()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		List<Node> testNodes =
-			Arrays.asList(new Node[] {
-				new Node(NodeKind.Terminal, "terminal"),
-				new Node(NodeKind.Nonterminal, "nonterminal")
-			});
+			Arrays.asList(new Node(NodeKind.Terminal, "terminal"), new Node(
+				NodeKind.Nonterminal, "nonterminal"));
 
 		// Act & Assert
 		this._word.setNodes(testNodes);

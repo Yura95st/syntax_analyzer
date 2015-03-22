@@ -112,16 +112,12 @@ public class GrammarServiceTests
 		Word wordOne = new Word();
 
 		// Word: c
-		wordOne.setNodes(Arrays.asList(new Node[] {
-			nodeC
-		}));
+		wordOne.setNodes(Arrays.asList(nodeC));
 
 		Word wordTwo = new Word();
 
 		// Word: d
-		wordTwo.setNodes(Arrays.asList(new Node[] {
-			nodeD
-		}));
+		wordTwo.setNodes(Arrays.asList(nodeD));
 
 		// Arrange - create testFirstSetDictionary
 		Map<Rule, Set<Word>> testFirstSetDictionary =
@@ -236,16 +232,12 @@ public class GrammarServiceTests
 		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(new Node[] {
-			nodeD
-		}));
+		wordOne.setNodes(Arrays.asList(nodeD));
 
 		Word wordTwo = new Word();
 
 		// Word: e
-		wordTwo.setNodes(Arrays.asList(new Node[] {
-			nodeE
-		}));
+		wordTwo.setNodes(Arrays.asList(nodeE));
 
 		// Arrange - create testFirstSetDictionary
 		Map<Rule, Set<Word>> testFirstSetDictionary =
@@ -311,16 +303,12 @@ public class GrammarServiceTests
 		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(new Node[] {
-			nodeD
-		}));
+		wordOne.setNodes(Arrays.asList(nodeD));
 
 		Word wordTwo = new Word();
 
 		// Word: e
-		wordTwo.setNodes(Arrays.asList(new Node[] {
-			nodeE
-		}));
+		wordTwo.setNodes(Arrays.asList(nodeE));
 
 		// Arrange - create testFirstSetDictionary
 		Map<Rule, Set<Word>> testFirstSetDictionary =
@@ -403,9 +391,7 @@ public class GrammarServiceTests
 		Word wordOne = new Word();
 
 		// Word: b
-		wordOne.setNodes(Arrays.asList(new Node[] {
-			nodeB
-		}));
+		wordOne.setNodes(Arrays.asList(nodeB));
 
 		// Arrange - create testFirstSetDictionary
 		Map<Rule, Set<Word>> testFirstSetDictionary =
@@ -468,9 +454,7 @@ public class GrammarServiceTests
 
 		// Arrange - create rightRecursiveRules list
 		Set<Rule> testRightRecursiveRules =
-			new HashSet<Rule>(Arrays.asList(new Rule[] {
-				ruleTwo, ruleThree
-			}));
+			new HashSet<Rule>(Arrays.asList(ruleTwo, ruleThree));
 
 		// Act
 		Set<Rule> rightRecursiveRules =
@@ -521,9 +505,7 @@ public class GrammarServiceTests
 
 		// Arrange - create rightRecursiveRules list
 		Set<Rule> testRightRecursiveRules =
-			new HashSet<Rule>(Arrays.asList(new Rule[] {
-				ruleOne
-			}));
+			new HashSet<Rule>(Arrays.asList(ruleOne));
 
 		// Act
 		Set<Rule> rightRecursiveRules =
@@ -622,9 +604,7 @@ public class GrammarServiceTests
 
 		// Arrange - create rightRecursiveRules list
 		Set<Rule> testRightRecursiveRules =
-			new HashSet<Rule>(Arrays.asList(new Rule[] {
-				ruleOne
-			}));
+			new HashSet<Rule>(Arrays.asList(ruleOne));
 
 		// Act
 		Set<Rule> rightRecursiveRules =
