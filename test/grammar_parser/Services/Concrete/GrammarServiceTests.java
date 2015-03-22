@@ -8,7 +8,9 @@ import grammar_parser.Models.Word;
 import grammar_parser.Services.Abstract.IGrammarService;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -19,20 +21,32 @@ public class GrammarServiceTests
 {
 	IGrammarService _grammarService;
 
-	@Test(expected = IllegalArgumentException.class)
-	public void getFirstSet_GrammarIsNull_ThrowsIllegalArgumentException()
+	@Test
+	public void getFirstSetDictionary_GrammarIsEmpty_ReturnsEmptyDictionary()
 		throws Exception
 	{
 		// Arrange
-		Rule rule = new Rule(new Node(NodeKind.Nonterminal, "A"));
+		Grammar grammar = new Grammar();
 
+		// Act
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(0, firstSetDictionary.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstSetDictionary_GrammarIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
 		// Act & Assert
-		this._grammarService.getFirstSet(null, rule);
+		this._grammarService.getFirstSetDictionary(null);
 	}
 
 	@Test
-	public void getFirstSet_RuleIsEmpty_ReturnsSetWithOneEmptyWord()
-			throws Exception
+	public void getFirstSetDictionary_RuleIsEmpty_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -49,37 +63,24 @@ public class GrammarServiceTests
 
 		grammar.setHeadRule(ruleOne);
 
-		// Arrange - create words
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
 
-		// Empty word
-		Word wordOne = new Word();
-
-		// Arrange - create testFirstSet
-		Set<Word> testFirstSet = new HashSet<Word>();
-
-		testFirstSet.add(wordOne);
+		testFirstSetDictionary.put(ruleOne,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
 
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(testFirstSet, firstSet);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void getFirstSet_RuleIsNull_ThrowsIllegalArgumentException()
-		throws Exception
-	{
-		// Arrange
-		Grammar grammar = new Grammar();
-
-		// Act & Assert
-		this._grammarService.getFirstSet(grammar, null);
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test
-	public void getFirstSet_RuleThatStartsFromTerminal_ReturnsSetWithOneWord()
-			throws Exception
+	public void getFirstSetDictionary_RuleThatStartsFromTerminal_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -115,21 +116,33 @@ public class GrammarServiceTests
 			nodeC
 		}));
 
-		// Arrange - create testFirstSet
-		Set<Word> testFirstSet = new HashSet<Word>();
+		Word wordTwo = new Word();
 
-		testFirstSet.add(wordOne);
+		// Word: d
+		wordTwo.setNodes(Arrays.asList(new Node[] {
+			nodeD
+		}));
+
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
+
+		testFirstSetDictionary.put(ruleOne,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+		testFirstSetDictionary.put(ruleTwo,
+			new HashSet<Word>(Arrays.asList(wordTwo)));
 
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(testFirstSet, firstSet);
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test
-	public void getFirstSet_RuleWithComplexCycle_ReturnsEmptySet()
-			throws Exception
+	public void getFirstSetDictionary_RuleWithComplexCycle_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -162,16 +175,25 @@ public class GrammarServiceTests
 
 		grammar.setHeadRule(ruleOne);
 
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
+
+		testFirstSetDictionary.put(ruleOne, new HashSet<Word>());
+		testFirstSetDictionary.put(ruleTwo, new HashSet<Word>());
+		testFirstSetDictionary.put(ruleThree, new HashSet<Word>());
+
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(0, firstSet.size());
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test
-	public void getFirstSet_RuleWithEmptyFirstNonterminal_ReturnSetWithThreeWords()
-			throws Exception
+	public void getFirstSetDictionary_RuleWithEmptyFirstNonterminal_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -225,26 +247,32 @@ public class GrammarServiceTests
 			nodeE
 		}));
 
-		// Empty word
-		Word wordThree = new Word();
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
 
-		// Arrange - create testFirstSet
-		Set<Word> testFirstSet = new HashSet<Word>();
-
-		testFirstSet.add(wordOne);
-		testFirstSet.add(wordTwo);
-		testFirstSet.add(wordThree);
+		testFirstSetDictionary.put(
+			ruleOne,
+			new HashSet<Word>(Arrays.asList(wordOne, wordTwo,
+				Word.getEmptyWord())));
+		testFirstSetDictionary.put(ruleTwo,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+		testFirstSetDictionary.put(ruleThree,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+		testFirstSetDictionary.put(ruleFour,
+			new HashSet<Word>(Arrays.asList(wordTwo)));
 
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(testFirstSet, firstSet);
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test
-	public void getFirstSet_RuleWithNonEmptyNonterminals_ReturnsSetWithOneWord()
-			throws Exception
+	public void getFirstSetDictionary_RuleWithNonEmptyNonterminals_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -287,21 +315,35 @@ public class GrammarServiceTests
 			nodeD
 		}));
 
-		// Arrange - create testFirstSet
-		Set<Word> testFirstSet = new HashSet<Word>();
+		Word wordTwo = new Word();
 
-		testFirstSet.add(wordOne);
+		// Word: e
+		wordTwo.setNodes(Arrays.asList(new Node[] {
+			nodeE
+		}));
+
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
+
+		testFirstSetDictionary.put(ruleOne,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+		testFirstSetDictionary.put(ruleTwo,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+		testFirstSetDictionary.put(ruleThree,
+			new HashSet<Word>(Arrays.asList(wordTwo)));
 
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(testFirstSet, firstSet);
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test
-	public void getFirstSet_RuleWithSimpleCycle_ReturnsEmptySet()
-			throws Exception
+	public void getFirstSetDictionary_RuleWithSimpleCycle_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -320,16 +362,23 @@ public class GrammarServiceTests
 
 		grammar.setHeadRule(ruleOne);
 
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
+
+		testFirstSetDictionary.put(ruleOne, new HashSet<Word>());
+
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(0, firstSet.size());
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test
-	public void getFirstSet_RuleWithTwoTerminals_ReturnsSetWithOneWord()
-			throws Exception
+	public void getFirstSetDictionary_RuleWithTwoTerminals_ReturnsValidDictionary()
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -358,16 +407,19 @@ public class GrammarServiceTests
 			nodeB
 		}));
 
-		// Arrange - create testFirstSet
-		Set<Word> testFirstSet = new HashSet<Word>();
+		// Arrange - create testFirstSetDictionary
+		Map<Rule, Set<Word>> testFirstSetDictionary =
+			new HashMap<Rule, Set<Word>>();
 
-		testFirstSet.add(wordOne);
+		testFirstSetDictionary.put(ruleOne,
+			new HashSet<Word>(Arrays.asList(wordOne)));
 
 		// Act
-		Set<Word> firstSet = this._grammarService.getFirstSet(grammar, ruleOne);
+		Map<Rule, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
-		Assert.assertEquals(testFirstSet, firstSet);
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -417,8 +469,8 @@ public class GrammarServiceTests
 		// Arrange - create rightRecursiveRules list
 		Set<Rule> testRightRecursiveRules =
 			new HashSet<Rule>(Arrays.asList(new Rule[] {
-					ruleTwo, ruleThree
-				}));
+				ruleTwo, ruleThree
+			}));
 
 		// Act
 		Set<Rule> rightRecursiveRules =
@@ -470,8 +522,8 @@ public class GrammarServiceTests
 		// Arrange - create rightRecursiveRules list
 		Set<Rule> testRightRecursiveRules =
 			new HashSet<Rule>(Arrays.asList(new Rule[] {
-					ruleOne
-				}));
+				ruleOne
+			}));
 
 		// Act
 		Set<Rule> rightRecursiveRules =
@@ -571,8 +623,8 @@ public class GrammarServiceTests
 		// Arrange - create rightRecursiveRules list
 		Set<Rule> testRightRecursiveRules =
 			new HashSet<Rule>(Arrays.asList(new Rule[] {
-					ruleOne
-				}));
+				ruleOne
+			}));
 
 		// Act
 		Set<Rule> rightRecursiveRules =

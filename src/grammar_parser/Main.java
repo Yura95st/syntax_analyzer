@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class Main
@@ -30,7 +31,7 @@ public class Main
 			Path path = Paths.get(args[0]);
 
 			List<String> lines =
-					Files.readAllLines(path, StandardCharsets.UTF_8);
+				Files.readAllLines(path, StandardCharsets.UTF_8);
 
 			StringBuilder stringBuilder = new StringBuilder();
 
@@ -66,7 +67,7 @@ public class Main
 				System.getProperty("line.separator")));
 
 			Map<SpecialNodeKind, Node> specialNodesDictionary =
-					grammarParser.getSpecialNodesDictionary();
+				grammarParser.getSpecialNodesDictionary();
 
 			for (List<Rule> rules : grammar.getRulesDictionary().values())
 			{
@@ -84,12 +85,12 @@ public class Main
 				System.getProperty("line.separator")));
 
 			Set<Rule> rightRecursiveRules =
-					grammarService.getRightRecursiveRules(grammar);
+				grammarService.getRightRecursiveRules(grammar);
 
 			if (rightRecursiveRules.size() == 0)
 			{
 				System.out
-				.println("Grammar doesn't contain any rightRecursive rule.");
+						.println("Grammar doesn't contain any rightRecursive rule.");
 			}
 			else
 			{
@@ -103,16 +104,17 @@ public class Main
 			System.out.println(String.format("%1$s----- FIRST: -----%1$s",
 				System.getProperty("line.separator")));
 
-			for (List<Rule> rules : grammar.getRulesDictionary().values())
-			{
-				for (Rule rule : rules)
-				{
-					System.out.print(String.format("First(%1$s) :", Main.ruleToString(rule, specialNodesDictionary)));
+			Map<Rule, Set<Word>> firstSetDictionary =
+				grammarService.getFirstSetDictionary(grammar);
 
-					for (Word word : grammarService.getFirstSet(grammar, rule))
-					{
-						System.out.println(Main.wordToString(word));
-					}
+			for (Entry<Rule, Set<Word>> entry : firstSetDictionary.entrySet())
+			{
+				System.out.print(String.format("First(%1$s) :",
+					Main.ruleToString(entry.getKey(), specialNodesDictionary)));
+
+				for (Word word : entry.getValue())
+				{
+					System.out.println(Main.wordToString(word));
 				}
 			}
 		}

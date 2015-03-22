@@ -1,6 +1,7 @@
 package grammar_parser.Services.Concrete;
 
 import grammar_parser.Enums.NodeKind;
+import grammar_parser.Exceptions.NodeIsNotTerminalException;
 import grammar_parser.Models.Grammar;
 import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
@@ -21,114 +22,23 @@ import java.util.Stack;
 public class GrammarService implements IGrammarService
 {
 	@Override
-	public Set<Word> getFirstSet(Grammar grammar, Rule rule) throws Exception
+	public Map<Rule, Set<Word>> getFirstSetDictionary(Grammar grammar)
+		throws Exception
 	{
 		Guard.notNull(grammar, "grammar");
-		Guard.notNull(rule, "rule");
 
-		Map<Node, Set<Word>> firstSetsDictionary =
-				new HashMap<Node, Set<Word>>();
-
-		Stack<Entry<Rule, List<Node>>> entriesStack =
-				new Stack<Entry<Rule, List<Node>>>();
+		Map<Rule, Set<Word>> firstSetsDictionary =
+			new HashMap<Rule, Set<Word>>();
 
 		Set<Rule> visitedRules = new HashSet<Rule>();
 
-		Word emptyWord = new Word();
-
-		entriesStack.push(this.getEntryFromRule(rule));
-
-		while (!entriesStack.isEmpty())
+		for (Rule rule : this.getAllRulesFromGrammar(grammar))
 		{
-			Entry<Rule, List<Node>> topEntry = entriesStack.peek();
-
-			Rule topEntryRule = topEntry.getKey();
-			List<Node> topEntryNodes = topEntry.getValue();
-			Node topEntryHeadNode = topEntryRule.getHeadNode();
-
-			firstSetsDictionary.putIfAbsent(topEntryHeadNode,
-				new HashSet<Word>());
-
-			if (visitedRules.contains(topEntryRule))
-			{
-				Node firstNode = topEntryNodes.get(0);
-
-				if (firstNode.getKind() == NodeKind.Terminal)
-				{
-					// A = "b", C. => FIRST(A) = {"b"}
-					topEntryNodes.clear();
-				}
-				else
-				{
-					Set<Word> words = firstSetsDictionary.get(firstNode);
-
-					firstSetsDictionary.get(topEntryHeadNode).addAll(words);
-
-					// A = B, C. => FIRST(A) = FIRST(B) U
-					// (FIRST(C) if FIRST(B) contains empty word);
-					if (!words.contains(emptyWord))
-					{
-						topEntryNodes.clear();
-					}
-					else
-					{
-						topEntryNodes.remove(firstNode);
-					}
-				}
-			}
-			else
-			{
-				// Mark rule as visited
-				visitedRules.add(topEntryRule);
-			}
-
-			if (!topEntryNodes.isEmpty())
-			{
-				// Get the first node of the rule.
-				Node firstNode = topEntryNodes.get(0);
-
-				if (firstNode.getKind() == NodeKind.Terminal)
-				{
-					Word word = new Word();
-
-					word.setNodes(new ArrayList<Node>() {
-						{
-							this.add(firstNode);
-						}
-					});
-
-					// Add word to the dictionary
-					firstSetsDictionary.get(topEntryHeadNode).add(word);
-				}
-				else
-				{
-					for (Rule ruleToPush : grammar.getRules(firstNode))
-					{
-						// Prevent cycles.
-						if (!this
-								.isRuleInEntriesStack(ruleToPush, entriesStack))
-						{
-							entriesStack
-							.push(this.getEntryFromRule(ruleToPush));
-						}
-					}
-				}
-			}
-			else
-			{
-				// Add empty word to the dictionary if the rule is empty.
-				if (topEntryRule.getNodes().isEmpty())
-				{
-					firstSetsDictionary.get(topEntryHeadNode).add(emptyWord);
-				}
-
-				entriesStack.pop();
-			}
+			this.processRuleFirstSet(rule, grammar, firstSetsDictionary,
+				visitedRules);
 		}
 
-		Set<Word> firstSet = firstSetsDictionary.get(rule.getHeadNode());
-
-		return firstSet;
+		return new HashMap<Rule, Set<Word>>(firstSetsDictionary);
 	}
 
 	@Override
@@ -159,10 +69,25 @@ public class GrammarService implements IGrammarService
 		return rightRecursiveRules;
 	}
 
+	private List<Rule> getAllRulesFromGrammar(Grammar grammar)
+	{
+		List<Rule> rulesList = new ArrayList<Rule>();
+
+		for (List<Rule> rules : grammar.getRulesDictionary().values())
+		{
+			for (Rule rule : rules)
+			{
+				rulesList.add(rule);
+			}
+		}
+
+		return rulesList;
+	}
+
 	private Entry<Rule, List<Node>> getEntryFromRule(Rule rule)
 	{
 		Entry<Rule, List<Node>> entry =
-				new AbstractMap.SimpleEntry<Rule, List<Node>>(rule, rule.getNodes());
+			new AbstractMap.SimpleEntry<Rule, List<Node>>(rule, rule.getNodes());
 
 		return entry;
 	}
@@ -270,5 +195,107 @@ public class GrammarService implements IGrammarService
 		}
 
 		return false;
+	}
+
+	private void processRuleFirstSet(Rule ruleToProcess, Grammar grammar,
+		Map<Rule, Set<Word>> firstSetsDictionary, Set<Rule> visitedRules)
+		throws NodeIsNotTerminalException
+	{
+		Stack<Entry<Rule, List<Node>>> entriesStack =
+			new Stack<Entry<Rule, List<Node>>>();
+
+		entriesStack.push(this.getEntryFromRule(ruleToProcess));
+
+		while (!entriesStack.isEmpty())
+		{
+			Entry<Rule, List<Node>> topEntry = entriesStack.peek();
+
+			Rule topEntryRule = topEntry.getKey();
+			List<Node> topEntryNodes = topEntry.getValue();
+
+			firstSetsDictionary.putIfAbsent(topEntryRule, new HashSet<Word>());
+
+			if (visitedRules.contains(topEntryRule) && !topEntryNodes.isEmpty())
+			{
+				Node firstNode = topEntryNodes.get(0);
+
+				if (firstNode.getKind() == NodeKind.Terminal)
+				{
+					// A = "b", C. => FIRST(A) = {"b"}
+					topEntryNodes.clear();
+				}
+				else
+				{
+					Set<Word> words = new HashSet<Word>();
+
+					for (Rule rule : grammar.getRules(firstNode))
+					{
+						words.addAll(firstSetsDictionary.get(rule));
+					}
+
+					firstSetsDictionary.get(topEntryRule).addAll(words);
+
+					// A = B, C. => FIRST(A) = FIRST(B) U
+					// (FIRST(C) if FIRST(B) contains empty word);
+					if (!words.contains(Word.getEmptyWord()))
+					{
+						topEntryNodes.clear();
+					}
+					else
+					{
+						topEntryNodes.remove(firstNode);
+					}
+				}
+			}
+			else
+			{
+				// Mark rule as visited
+				visitedRules.add(topEntryRule);
+			}
+
+			if (!topEntryNodes.isEmpty())
+			{
+				// Get the first node of the rule.
+				Node firstNode = topEntryNodes.get(0);
+
+				if (firstNode.getKind() == NodeKind.Terminal)
+				{
+					Word word = new Word();
+
+					word.setNodes(new ArrayList<Node>() {
+						{
+							this.add(firstNode);
+						}
+					});
+
+					// Add word to the dictionary
+					firstSetsDictionary.get(topEntryRule).add(word);
+				}
+				else
+				{
+					for (Rule ruleToPush : grammar.getRules(firstNode))
+					{
+						// Prevent cycles.
+						if (!this
+								.isRuleInEntriesStack(ruleToPush, entriesStack))
+						{
+							entriesStack
+									.push(this.getEntryFromRule(ruleToPush));
+						}
+					}
+				}
+			}
+			else
+			{
+				// Add empty word to the dictionary if the rule is empty.
+				if (topEntryRule.getNodes().isEmpty())
+				{
+					firstSetsDictionary.get(topEntryRule).add(
+						Word.getEmptyWord());
+				}
+
+				entriesStack.pop();
+			}
+		}
 	}
 }
