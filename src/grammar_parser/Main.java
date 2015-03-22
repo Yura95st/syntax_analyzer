@@ -7,6 +7,7 @@ import grammar_parser.Lexers.Concrete.GrammarLexer;
 import grammar_parser.Models.Grammar;
 import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
+import grammar_parser.Models.Word;
 import grammar_parser.Parsers.Abstract.IGrammarParser;
 import grammar_parser.Parsers.Concrete.GrammarParser;
 import grammar_parser.Services.Abstract.IGrammarService;
@@ -28,8 +29,8 @@ public class Main
 		{
 			Path path = Paths.get(args[0]);
 
-			List<String> lines = Files.readAllLines(path,
-				StandardCharsets.UTF_8);
+			List<String> lines =
+					Files.readAllLines(path, StandardCharsets.UTF_8);
 
 			StringBuilder stringBuilder = new StringBuilder();
 
@@ -64,8 +65,8 @@ public class Main
 			System.out.println(String.format("%1$s----- Grammar: -----%1$s",
 				System.getProperty("line.separator")));
 
-			Map<SpecialNodeKind, Node> specialNodesDictionary = grammarParser
-					.getSpecialNodesDictionary();
+			Map<SpecialNodeKind, Node> specialNodesDictionary =
+					grammarParser.getSpecialNodesDictionary();
 
 			for (List<Rule> rules : grammar.getRulesDictionary().values())
 			{
@@ -82,8 +83,8 @@ public class Main
 				"%1$s----- RightRecursive rules: -----%1$s",
 				System.getProperty("line.separator")));
 
-			Set<Rule> rightRecursiveRules = grammarService
-					.getRightRecursiveRules(grammar);
+			Set<Rule> rightRecursiveRules =
+					grammarService.getRightRecursiveRules(grammar);
 
 			if (rightRecursiveRules.size() == 0)
 			{
@@ -96,6 +97,22 @@ public class Main
 				{
 					System.out.println(Main.ruleToString(rule,
 						specialNodesDictionary));
+				}
+			}
+
+			System.out.println(String.format("%1$s----- FIRST: -----%1$s",
+				System.getProperty("line.separator")));
+
+			for (List<Rule> rules : grammar.getRulesDictionary().values())
+			{
+				for (Rule rule : rules)
+				{
+					System.out.print(String.format("First(%1$s) :", Main.ruleToString(rule, specialNodesDictionary)));
+
+					for (Word word : grammarService.getFirstSet(grammar, rule))
+					{
+						System.out.println(Main.wordToString(word));
+					}
 				}
 			}
 		}
@@ -150,6 +167,32 @@ public class Main
 		stringBuilder.append(" ");
 		stringBuilder.append(specialNodesDictionary.get(
 			SpecialNodeKind.Termination).getText());
+
+		String resultString = stringBuilder.toString();
+
+		return resultString;
+	}
+
+	static String wordToString(Word word)
+	{
+		StringBuilder stringBuilder = new StringBuilder();
+
+		boolean isFirstNode = true;
+
+		for (Node node : word.getNodes())
+		{
+			if (!isFirstNode)
+			{
+				stringBuilder.append(",");
+			}
+			else
+			{
+				isFirstNode = false;
+			}
+
+			stringBuilder.append(" ");
+			stringBuilder.append(node.getText());
+		}
 
 		String resultString = stringBuilder.toString();
 
