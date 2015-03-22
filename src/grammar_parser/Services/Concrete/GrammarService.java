@@ -9,7 +9,6 @@ import grammar_parser.Services.Abstract.IGrammarService;
 import grammar_parser.Utils.Guard;
 
 import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,17 +27,16 @@ public class GrammarService implements IGrammarService
 		Guard.notNull(rule, "rule");
 
 		Map<Node, Set<Word>> firstSetsDictionary =
-			new HashMap<Node, Set<Word>>();
+				new HashMap<Node, Set<Word>>();
 
 		Stack<Entry<Rule, List<Node>>> entriesStack =
-			new Stack<Entry<Rule, List<Node>>>();
+				new Stack<Entry<Rule, List<Node>>>();
 
 		Set<Rule> visitedRules = new HashSet<Rule>();
 
 		Word emptyWord = new Word();
 
-		entriesStack.add(new AbstractMap.SimpleEntry<Rule, List<Node>>(rule,
-				rule.getNodes()));
+		entriesStack.push(this.getEntryFromRule(rule));
 
 		while (!entriesStack.isEmpty())
 		{
@@ -46,8 +44,9 @@ public class GrammarService implements IGrammarService
 
 			Rule topEntryRule = topEntry.getKey();
 			List<Node> topEntryNodes = topEntry.getValue();
+			Node topEntryHeadNode = topEntryRule.getHeadNode();
 
-			firstSetsDictionary.putIfAbsent(topEntryRule.getHeadNode(),
+			firstSetsDictionary.putIfAbsent(topEntryHeadNode,
 				new HashSet<Word>());
 
 			if (visitedRules.contains(topEntryRule))
@@ -56,15 +55,17 @@ public class GrammarService implements IGrammarService
 
 				if (firstNode.getKind() == NodeKind.Terminal)
 				{
+					// A = "b", C. => FIRST(A) = {"b"}
 					topEntryNodes.clear();
 				}
 				else
 				{
 					Set<Word> words = firstSetsDictionary.get(firstNode);
 
-					firstSetsDictionary.get(topEntryRule.getHeadNode()).addAll(
-						words);
+					firstSetsDictionary.get(topEntryHeadNode).addAll(words);
 
+					// A = B, C. => FIRST(A) = FIRST(B) U
+					// (FIRST(C) if FIRST(B) contains empty word);
 					if (!words.contains(emptyWord))
 					{
 						topEntryNodes.clear();
@@ -77,6 +78,7 @@ public class GrammarService implements IGrammarService
 			}
 			else
 			{
+				// Mark rule as visited
 				visitedRules.add(topEntryRule);
 			}
 
@@ -95,43 +97,29 @@ public class GrammarService implements IGrammarService
 						}
 					});
 
-					firstSetsDictionary.get(topEntryRule.getHeadNode()).add(
-						word);
+					// Add word to the dictionary
+					firstSetsDictionary.get(topEntryHeadNode).add(word);
 				}
 				else
 				{
-					for (Rule ruleToStack : grammar.getRules(firstNode))
+					for (Rule ruleToPush : grammar.getRules(firstNode))
 					{
-						boolean ruleIsInStack = false;
-
-						for (Entry<Rule, List<Node>> entry : entriesStack)
-						{
-							if (entry.getKey().equals(ruleToStack))
-							{
-								ruleIsInStack = true;
-								break;
-							}
-						}
-
 						// Prevent cycles.
-						if (!ruleIsInStack)
+						if (!this
+								.isRuleInEntriesStack(ruleToPush, entriesStack))
 						{
-							SimpleEntry<Rule, List<Node>> entry =
-								new AbstractMap.SimpleEntry<Rule, List<Node>>(
-									ruleToStack, ruleToStack.getNodes());
-
-							entriesStack.add(entry);
+							entriesStack
+							.push(this.getEntryFromRule(ruleToPush));
 						}
 					}
 				}
 			}
 			else
 			{
-				// Add empty word if rule is empty.
+				// Add empty word to the dictionary if the rule is empty.
 				if (topEntryRule.getNodes().isEmpty())
 				{
-					firstSetsDictionary.get(topEntryRule.getHeadNode()).add(
-						emptyWord);
+					firstSetsDictionary.get(topEntryHeadNode).add(emptyWord);
 				}
 
 				entriesStack.pop();
@@ -162,6 +150,14 @@ public class GrammarService implements IGrammarService
 		}
 
 		return rightRecursiveRules;
+	}
+
+	private Entry<Rule, List<Node>> getEntryFromRule(Rule rule)
+	{
+		Entry<Rule, List<Node>> entry =
+				new AbstractMap.SimpleEntry<Rule, List<Node>>(rule, rule.getNodes());
+
+		return entry;
 	}
 
 	private boolean isRightRecursiveRule(Rule rule, Grammar grammar)
@@ -214,7 +210,7 @@ public class GrammarService implements IGrammarService
 						for (Rule ruleToPush : grammar.getRules(node))
 						{
 							if (!rulesStack.contains(ruleToPush)
-									&& !poppedRules.contains(ruleToPush))
+								&& !poppedRules.contains(ruleToPush))
 							{
 								rulesToPush.add(ruleToPush);
 							}
@@ -255,6 +251,20 @@ public class GrammarService implements IGrammarService
 				{
 					rulesStack.push(ruleToPush);
 				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean isRuleInEntriesStack(Rule rule,
+		Stack<Entry<Rule, List<Node>>> entriesStack)
+	{
+		for (Entry<Rule, List<Node>> entry : entriesStack)
+		{
+			if (entry.getKey().equals(rule))
+			{
+				return true;
 			}
 		}
 
