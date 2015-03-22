@@ -9,6 +9,18 @@ import java.util.List;
 
 public class Word
 {
+	private static Word _emptyWord;
+
+	public static Word getEmptyWord()
+	{
+		if (Word._emptyWord == null)
+		{
+			Word._emptyWord = new Word();
+		}
+
+		return Word._emptyWord;
+	}
+
 	private final List<Node> _nodes;
 
 	public Word()
@@ -56,13 +68,14 @@ public class Word
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
+		result =
+			prime * result
 				+ ((this._nodes == null) ? 0 : this._nodes.hashCode());
 		return result;
 	}
-	
+
 	public void setNodes(Iterable<Node> nodes)
-		throws NodeIsNotTerminalException
+			throws NodeIsNotTerminalException
 	{
 		Guard.notNull(nodes, "nodes");
 

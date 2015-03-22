@@ -13,10 +13,34 @@ import org.junit.Test;
 public class WordTests
 {
 	private Word _word;
-	
+
+	@Test
+	public void getEmptyWord_EachTimeReturnsTheSameWord()
+	{
+		// Act
+		Word emptyWordOne = Word.getEmptyWord();
+		Word emptyWordTwo = Word.getEmptyWord();
+
+		// Assert
+		Assert.assertSame(emptyWordOne, emptyWordTwo);
+	}
+
+	@Test
+	public void getEmptyWord_ReturnsEmptyWord()
+	{
+		// Arrange
+		Word testEmptyWord = new Word();
+
+		// Act
+		Word emptyWord = Word.getEmptyWord();
+
+		// Assert
+		Assert.assertEquals(testEmptyWord, emptyWord);
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void setNodes_NodesListIsNull_ThrowsIllegalArgumentException()
-		throws Exception
+			throws Exception
 	{
 		// Act & Assert
 		this._word.setNodes(null);
@@ -26,36 +50,38 @@ public class WordTests
 	public void setNodes_NodesListIsValid_SetsNewNodes() throws Exception
 	{
 		// Arrange
-		List<Node> testNodes = Arrays.asList(new Node[] {
-			new Node(NodeKind.Terminal, "terminalOne"),
-			new Node(NodeKind.Terminal, "terminalTwo"),
-			new Node(NodeKind.Terminal, "terminalThree")
-		});
+		List<Node> testNodes =
+			Arrays.asList(new Node[] {
+				new Node(NodeKind.Terminal, "terminalOne"),
+				new Node(NodeKind.Terminal, "terminalTwo"),
+				new Node(NodeKind.Terminal, "terminalThree")
+			});
 
 		// Act
 		this._word.setNodes(testNodes);
-		
+
 		// Assert
-		
+
 		List<Node> nodes = this._word.getNodes();
-		
+
 		Assert.assertEquals(testNodes, nodes);
 	}
 
 	@Test(expected = NodeIsNotTerminalException.class)
 	public void setNodes_OneOfTheNodesIsNotTerminal_ThrowsNodeIsNotTerminalException()
-		throws Exception
+			throws Exception
 	{
 		// Arrange
-		List<Node> testNodes = Arrays.asList(new Node[] {
-			new Node(NodeKind.Terminal, "terminal"),
-			new Node(NodeKind.Nonterminal, "nonterminal")
-		});
+		List<Node> testNodes =
+			Arrays.asList(new Node[] {
+				new Node(NodeKind.Terminal, "terminal"),
+				new Node(NodeKind.Nonterminal, "nonterminal")
+			});
 
 		// Act & Assert
 		this._word.setNodes(testNodes);
 	}
-	
+
 	@Before
 	public void setUp() throws Exception
 	{
