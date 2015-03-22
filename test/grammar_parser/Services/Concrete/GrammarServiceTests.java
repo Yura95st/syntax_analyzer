@@ -19,15 +19,26 @@ public class GrammarServiceTests
 {
 	IGrammarService _grammarService;
 
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstSet_GrammarIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Rule rule = new Rule(new Node(NodeKind.Nonterminal, "A"));
+
+		// Act & Assert
+		this._grammarService.getFirstSet(null, rule);
+	}
+
 	@Test
 	public void getFirstSet_RuleIsEmpty_ReturnsSetWithOneEmptyWord()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
 
 		// Arrange - create rule
-		
+
 		// A = .
 		Rule ruleOne = new Rule(nodeA);
 
@@ -35,17 +46,17 @@ public class GrammarServiceTests
 		Grammar grammar = new Grammar();
 
 		grammar.addRule(ruleOne);
-		
+
 		grammar.setHeadRule(ruleOne);
-		
+
 		// Arrange - create words
-		
+
 		// Empty word
 		Word wordOne = new Word();
-		
+
 		// Arrange - create testFirstSet
 		Set<Word> testFirstSet = new HashSet<Word>();
-		
+
 		testFirstSet.add(wordOne);
 
 		// Act
@@ -54,10 +65,21 @@ public class GrammarServiceTests
 		// Assert
 		Assert.assertEquals(testFirstSet, firstSet);
 	}
-	
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstSet_RuleIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		// Act & Assert
+		this._grammarService.getFirstSet(grammar, null);
+	}
+
 	@Test
 	public void getFirstSet_RuleThatStartsFromTerminal_ReturnsSetWithOneWord()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -71,7 +93,7 @@ public class GrammarServiceTests
 		// A = "c", B .
 		ruleOne.addNode(nodeC);
 		ruleOne.addNode(nodeB);
-		
+
 		Rule ruleTwo = new Rule(nodeB);
 
 		// B = "d" .
@@ -82,12 +104,12 @@ public class GrammarServiceTests
 
 		grammar.addRule(ruleOne);
 		grammar.addRule(ruleTwo);
-		
+
 		grammar.setHeadRule(ruleOne);
-		
+
 		// Arrange - create words
 		Word wordOne = new Word();
-		
+
 		// Word: c
 		wordOne.setNodes(Arrays.asList(new Node[] {
 			nodeC
@@ -95,7 +117,7 @@ public class GrammarServiceTests
 
 		// Arrange - create testFirstSet
 		Set<Word> testFirstSet = new HashSet<Word>();
-		
+
 		testFirstSet.add(wordOne);
 
 		// Act
@@ -107,7 +129,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getFirstSet_RuleWithComplexCycle_ReturnsEmptySet()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -115,20 +137,20 @@ public class GrammarServiceTests
 		Node nodeC = new Node(NodeKind.Nonterminal, "C");
 
 		// Arrange - create rule
-		
+
 		// A = B .
 		Rule ruleOne = new Rule(nodeA);
-		
+
 		ruleOne.addNode(nodeB);
-		
+
 		// B = C .
 		Rule ruleTwo = new Rule(nodeB);
-		
+
 		ruleTwo.addNode(nodeC);
-		
+
 		// C = B .
 		Rule ruleThree = new Rule(nodeC);
-		
+
 		ruleThree.addNode(nodeB);
 
 		// Arrange - create grammar
@@ -137,7 +159,7 @@ public class GrammarServiceTests
 		grammar.addRule(ruleOne);
 		grammar.addRule(ruleTwo);
 		grammar.addRule(ruleThree);
-		
+
 		grammar.setHeadRule(ruleOne);
 
 		// Act
@@ -149,7 +171,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getFirstSet_RuleWithEmptyFirstNonterminal_ReturnSetWithThreeWords()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -164,12 +186,12 @@ public class GrammarServiceTests
 		// A = B, C .
 		ruleOne.addNode(nodeB);
 		ruleOne.addNode(nodeC);
-		
+
 		// B = .
 		Rule ruleTwo = new Rule(nodeB);
-		
+
 		Rule ruleThree = new Rule(nodeB);
-		
+
 		// B = "d" .
 		ruleThree.addNode(nodeD);
 
@@ -185,19 +207,19 @@ public class GrammarServiceTests
 		grammar.addRule(ruleTwo);
 		grammar.addRule(ruleThree);
 		grammar.addRule(ruleFour);
-		
+
 		grammar.setHeadRule(ruleOne);
-		
+
 		// Arrange - create words
 		Word wordOne = new Word();
-		
+
 		// Word: d
 		wordOne.setNodes(Arrays.asList(new Node[] {
 			nodeD
 		}));
-		
+
 		Word wordTwo = new Word();
-		
+
 		// Word: e
 		wordTwo.setNodes(Arrays.asList(new Node[] {
 			nodeE
@@ -208,7 +230,7 @@ public class GrammarServiceTests
 
 		// Arrange - create testFirstSet
 		Set<Word> testFirstSet = new HashSet<Word>();
-		
+
 		testFirstSet.add(wordOne);
 		testFirstSet.add(wordTwo);
 		testFirstSet.add(wordThree);
@@ -222,7 +244,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getFirstSet_RuleWithNonEmptyNonterminals_ReturnsSetWithOneWord()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -237,12 +259,12 @@ public class GrammarServiceTests
 		// A = B, C .
 		ruleOne.addNode(nodeB);
 		ruleOne.addNode(nodeC);
-		
+
 		Rule ruleTwo = new Rule(nodeB);
 
 		// B = "d" .
 		ruleTwo.addNode(nodeD);
-		
+
 		Rule ruleThree = new Rule(nodeC);
 
 		// C = "e" .
@@ -254,12 +276,12 @@ public class GrammarServiceTests
 		grammar.addRule(ruleOne);
 		grammar.addRule(ruleTwo);
 		grammar.addRule(ruleThree);
-		
+
 		grammar.setHeadRule(ruleOne);
-		
+
 		// Arrange - create words
 		Word wordOne = new Word();
-		
+
 		// Word: d
 		wordOne.setNodes(Arrays.asList(new Node[] {
 			nodeD
@@ -267,7 +289,7 @@ public class GrammarServiceTests
 
 		// Arrange - create testFirstSet
 		Set<Word> testFirstSet = new HashSet<Word>();
-		
+
 		testFirstSet.add(wordOne);
 
 		// Act
@@ -279,23 +301,23 @@ public class GrammarServiceTests
 
 	@Test
 	public void getFirstSet_RuleWithSimpleCycle_ReturnsEmptySet()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
 
 		// Arrange - create rule
-		
+
 		// A = A .
 		Rule ruleOne = new Rule(nodeA);
-		
+
 		ruleOne.addNode(nodeA);
 
 		// Arrange - create grammar
 		Grammar grammar = new Grammar();
 
 		grammar.addRule(ruleOne);
-		
+
 		grammar.setHeadRule(ruleOne);
 
 		// Act
@@ -307,7 +329,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getFirstSet_RuleWithTwoTerminals_ReturnsSetWithOneWord()
-		throws Exception
+			throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -325,20 +347,20 @@ public class GrammarServiceTests
 		Grammar grammar = new Grammar();
 
 		grammar.addRule(ruleOne);
-		
+
 		grammar.setHeadRule(ruleOne);
-		
+
 		// Arrange - create words
 		Word wordOne = new Word();
-		
+
 		// Word: b
 		wordOne.setNodes(Arrays.asList(new Node[] {
 			nodeB
 		}));
-		
+
 		// Arrange - create testFirstSet
 		Set<Word> testFirstSet = new HashSet<Word>();
-		
+
 		testFirstSet.add(wordOne);
 
 		// Act
@@ -360,7 +382,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getRightRecursiveRules_RecursiveRulesWithCycle_ReturnsSetWithTwoRecursiveRules()
-			throws Exception
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -393,14 +415,14 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create rightRecursiveRules list
-		Set<Rule> testRightRecursiveRules = new HashSet<Rule>(
-			Arrays.asList(new Rule[] {
-				ruleTwo, ruleThree
-			}));
+		Set<Rule> testRightRecursiveRules =
+			new HashSet<Rule>(Arrays.asList(new Rule[] {
+					ruleTwo, ruleThree
+				}));
 
 		// Act
-		Set<Rule> rightRecursiveRules = this._grammarService
-				.getRightRecursiveRules(grammar);
+		Set<Rule> rightRecursiveRules =
+			this._grammarService.getRightRecursiveRules(grammar);
 
 		// Assert
 		Assert.assertEquals(testRightRecursiveRules, rightRecursiveRules);
@@ -408,7 +430,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getRightRecursiveRules_RecursiveRuleWithEmptyRightRulesThree_ReturnsSetWithOneRightRecursiveRule()
-			throws Exception
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -446,22 +468,22 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create rightRecursiveRules list
-		Set<Rule> testRightRecursiveRules = new HashSet<Rule>(
-			Arrays.asList(new Rule[] {
-				ruleOne
-			}));
+		Set<Rule> testRightRecursiveRules =
+			new HashSet<Rule>(Arrays.asList(new Rule[] {
+					ruleOne
+				}));
 
 		// Act
-		Set<Rule> rightRecursiveRules = this._grammarService
-				.getRightRecursiveRules(grammar);
+		Set<Rule> rightRecursiveRules =
+			this._grammarService.getRightRecursiveRules(grammar);
 
 		// Assert
 		Assert.assertEquals(testRightRecursiveRules, rightRecursiveRules);
 	}
-	
+
 	@Test
 	public void getRightRecursiveRules_RecursiveRuleWithNotEmptyRightRule_ReturnsEmptySet()
-			throws Exception
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -489,8 +511,8 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Act
-		Set<Rule> rightRecursiveRules = this._grammarService
-				.getRightRecursiveRules(grammar);
+		Set<Rule> rightRecursiveRules =
+			this._grammarService.getRightRecursiveRules(grammar);
 
 		// Assert
 		Assert.assertEquals(0, rightRecursiveRules.size());
@@ -498,7 +520,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getRightRecursiveRules_SimpleRecursiveRule_ReturnsEmptySet()
-			throws Exception
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -518,8 +540,8 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Act
-		Set<Rule> rightRecursiveRules = this._grammarService
-				.getRightRecursiveRules(grammar);
+		Set<Rule> rightRecursiveRules =
+			this._grammarService.getRightRecursiveRules(grammar);
 
 		// Assert
 		Assert.assertEquals(0, rightRecursiveRules.size());
@@ -527,7 +549,7 @@ public class GrammarServiceTests
 
 	@Test
 	public void getRightRecursiveRules_SimpleRightRecursiveRule_ReturnsSetWithOneRightRecursiveRule()
-			throws Exception
+		throws Exception
 	{
 		// Arrange - create nodes
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
@@ -547,14 +569,14 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create rightRecursiveRules list
-		Set<Rule> testRightRecursiveRules = new HashSet<Rule>(
-			Arrays.asList(new Rule[] {
-				ruleOne
-			}));
+		Set<Rule> testRightRecursiveRules =
+			new HashSet<Rule>(Arrays.asList(new Rule[] {
+					ruleOne
+				}));
 
 		// Act
-		Set<Rule> rightRecursiveRules = this._grammarService
-				.getRightRecursiveRules(grammar);
+		Set<Rule> rightRecursiveRules =
+			this._grammarService.getRightRecursiveRules(grammar);
 
 		// Assert
 		Assert.assertEquals(testRightRecursiveRules, rightRecursiveRules);
