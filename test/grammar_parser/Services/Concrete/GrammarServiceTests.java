@@ -408,6 +408,62 @@ public class GrammarServiceTests
 		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
 	}
 
+	@Test
+	public void getNonterminalNodes_GrammarIsEmpty_ReturnsEmptySet()
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		// Act
+		Set<Node> nonterminalNodes =
+			this._grammarService.getNonterminalNodes(grammar);
+
+		// Assert
+		Assert.assertEquals(0, nonterminalNodes.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getNonterminalNodes_GrammarIsNull_ThrowsIllegalArgumentException()
+	{
+		// Act & Assert
+		this._grammarService.getNonterminalNodes(null);
+	}
+
+	@Test
+	public void getNonterminalNodes_GrammarIsValid_ReturnsNonterminalNodesSet()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Terminal, "c");
+
+		// Arrange - create rule
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B, "c" .
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeC);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create testNonterminalNodes
+		Set<Node> testNonterminalNodes =
+			new HashSet<Node>(Arrays.asList(nodeA, nodeB));
+
+		// Act
+		Set<Node> nonterminalNodes =
+			this._grammarService.getNonterminalNodes(grammar);
+
+		// Assert
+		Assert.assertEquals(testNonterminalNodes, nonterminalNodes);
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void getRightRecursiveRules_GrammarIsNull_ThrowsIllegalArgumentException()
 	{
@@ -612,6 +668,61 @@ public class GrammarServiceTests
 
 		// Assert
 		Assert.assertEquals(testRightRecursiveRules, rightRecursiveRules);
+	}
+
+	@Test
+	public void getTerminalNodes_GrammarIsEmpty_ReturnsEmptySet()
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		// Act
+		Set<Node> terminalNodes =
+			this._grammarService.getTerminalNodes(grammar);
+
+		// Assert
+		Assert.assertEquals(0, terminalNodes.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getTerminalNodes_GrammarIsNull_ThrowsIllegalArgumentException()
+	{
+		// Act & Assert
+		this._grammarService.getTerminalNodes(null);
+	}
+
+	@Test
+	public void getTerminalNodes_GrammarIsValid_ReturnsTerminalNodesSet()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Terminal, "c");
+
+		// Arrange - create rule
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B, "c" .
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeC);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create testTerminalNodes
+		Set<Node> testTerminalNodes = new HashSet<Node>(Arrays.asList(nodeC));
+
+		// Act
+		Set<Node> terminalNodes =
+			this._grammarService.getTerminalNodes(grammar);
+
+		// Assert
+		Assert.assertEquals(testTerminalNodes, terminalNodes);
 	}
 
 	@Before

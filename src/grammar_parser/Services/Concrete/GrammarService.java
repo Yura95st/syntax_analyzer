@@ -43,6 +43,15 @@ public class GrammarService implements IGrammarService
 	}
 
 	@Override
+	public Set<Node> getNonterminalNodes(Grammar grammar)
+	{
+		Guard.notNull(grammar, "grammar");
+
+		return this
+				.getNodesFromGrammarByNodeKind(grammar, NodeKind.Nonterminal);
+	}
+
+	@Override
 	public Set<Rule> getRightRecursiveRules(Grammar grammar)
 	{
 		Guard.notNull(grammar, "grammar");
@@ -56,18 +65,23 @@ public class GrammarService implements IGrammarService
 		// are not empty.
 		Map<Node, Boolean> ruleHeadNodesMarks = new HashMap<Node, Boolean>();
 
-		for (List<Rule> rules : grammar.getRulesDictionary().values())
+		for (Rule rule : this.getAllRulesFromGrammar(grammar))
 		{
-			for (Rule rule : rules)
+			if (this.isRightRecursiveRule(rule, grammar, ruleHeadNodesMarks))
 			{
-				if (this.isRightRecursiveRule(rule, grammar, ruleHeadNodesMarks))
-				{
-					rightRecursiveRules.add(rule);
-				}
+				rightRecursiveRules.add(rule);
 			}
 		}
 
 		return rightRecursiveRules;
+	}
+
+	@Override
+	public Set<Node> getTerminalNodes(Grammar grammar)
+	{
+		Guard.notNull(grammar, "grammar");
+
+		return this.getNodesFromGrammarByNodeKind(grammar, NodeKind.Terminal);
 	}
 
 	private List<Rule> getAllRulesFromGrammar(Grammar grammar)
@@ -91,6 +105,32 @@ public class GrammarService implements IGrammarService
 			new AbstractMap.SimpleEntry<Rule, List<Node>>(rule, rule.getNodes());
 
 		return entry;
+	}
+
+	private Set<Node> getNodesFromGrammarByNodeKind(Grammar grammar,
+		NodeKind nodeKind)
+	{
+		Set<Node> nonterminalNodes = new HashSet<Node>();
+
+		for (Rule rule : this.getAllRulesFromGrammar(grammar))
+		{
+			Node headNode = rule.getHeadNode();
+
+			if (headNode.getKind() == nodeKind)
+			{
+				nonterminalNodes.add(headNode);
+			}
+
+			for (Node node : rule.getNodes())
+			{
+				if (node.getKind() == nodeKind)
+				{
+					nonterminalNodes.add(node);
+				}
+			}
+		}
+
+		return nonterminalNodes;
 	}
 
 	private boolean isRightRecursiveRule(Rule rule, Grammar grammar,

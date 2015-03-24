@@ -1,6 +1,7 @@
 package grammar_parser.Services.Abstract;
 
 import grammar_parser.Models.Grammar;
+import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
 import grammar_parser.Models.Word;
 
@@ -17,7 +18,17 @@ public interface IGrammarService
 	 * @return the First set dictionary
 	 * @throws Exception
 	 */
-	Map<Rule, Set<Word>> getFirstSetDictionary(Grammar grammar) throws Exception;
+	Map<Rule, Set<Word>> getFirstSetDictionary(Grammar grammar)
+		throws Exception;
+
+	/**
+	 * Gets the nonterminal nodes for the specified grammar.
+	 *
+	 * @param grammar
+	 *            the grammar
+	 * @return the nonterminal nodes
+	 */
+	Set<Node> getNonterminalNodes(Grammar grammar);
 
 	/**
 	 * Gets the right recursive rules from specified grammar.
@@ -27,4 +38,13 @@ public interface IGrammarService
 	 * @return the right recursive rules
 	 */
 	Set<Rule> getRightRecursiveRules(Grammar grammar);
+
+	/**
+	 * Gets the terminal nodes for the specified grammar.
+	 *
+	 * @param grammar
+	 *            the grammar
+	 * @return the terminal nodes
+	 */
+	Set<Node> getTerminalNodes(Grammar grammar);
 }
