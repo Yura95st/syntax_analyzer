@@ -18,7 +18,7 @@ public interface IGrammarService
 	 * @return the First set dictionary
 	 * @throws Exception
 	 */
-	Map<Rule, Set<Word>> getFirstSetDictionary(Grammar grammar)
+	Map<Node, Set<Word>> getFirstSetDictionary(Grammar grammar)
 		throws Exception;
 
 	/**

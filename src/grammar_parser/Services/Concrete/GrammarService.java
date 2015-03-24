@@ -23,13 +23,13 @@ import java.util.Stack;
 public class GrammarService implements IGrammarService
 {
 	@Override
-	public Map<Rule, Set<Word>> getFirstSetDictionary(Grammar grammar)
+	public Map<Node, Set<Word>> getFirstSetDictionary(Grammar grammar)
 		throws Exception
 	{
 		Guard.notNull(grammar, "grammar");
 
-		Map<Rule, Set<Word>> firstSetsDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> firstSetsDictionary =
+			new HashMap<Node, Set<Word>>();
 
 		Set<Rule> visitedRules = new HashSet<Rule>();
 
@@ -39,7 +39,7 @@ public class GrammarService implements IGrammarService
 				visitedRules);
 		}
 
-		return new HashMap<Rule, Set<Word>>(firstSetsDictionary);
+		return new HashMap<Node, Set<Word>>(firstSetsDictionary);
 	}
 
 	@Override
@@ -239,7 +239,7 @@ public class GrammarService implements IGrammarService
 	}
 
 	private void processRuleFirstSet(Rule ruleToProcess, Grammar grammar,
-		Map<Rule, Set<Word>> firstSetsDictionary, Set<Rule> visitedRules)
+		Map<Node, Set<Word>> firstSetsDictionary, Set<Rule> visitedRules)
 		throws NodeIsNotTerminalException
 	{
 		Stack<Entry<Rule, List<Node>>> entriesStack =
@@ -254,7 +254,11 @@ public class GrammarService implements IGrammarService
 			Rule topEntryRule = topEntry.getKey();
 			List<Node> topEntryNodes = topEntry.getValue();
 
-			firstSetsDictionary.putIfAbsent(topEntryRule, new HashSet<Word>());
+			Node topEntryHeadNode = topEntryRule.getHeadNode();
+
+			firstSetsDictionary.putIfAbsent(topEntryHeadNode, new HashSet<Word>());
+
+			Set<Word> firstSet = firstSetsDictionary.get(topEntryHeadNode);
 
 			if (visitedRules.contains(topEntryRule) && !topEntryNodes.isEmpty())
 			{
@@ -267,14 +271,9 @@ public class GrammarService implements IGrammarService
 				}
 				else
 				{
-					Set<Word> words = new HashSet<Word>();
+					Set<Word> words = firstSetsDictionary.get(firstNode);
 
-					for (Rule rule : grammar.getRules(firstNode))
-					{
-						words.addAll(firstSetsDictionary.get(rule));
-					}
-
-					firstSetsDictionary.get(topEntryRule).addAll(words);
+					firstSet.addAll(words);
 
 					// A = B, C. => FIRST(A) = FIRST(B) U
 					// (FIRST(C) if FIRST(B) contains empty word);
@@ -306,7 +305,7 @@ public class GrammarService implements IGrammarService
 					word.setNodes(Arrays.asList(firstNode));
 
 					// Add word to the dictionary
-					firstSetsDictionary.get(topEntryRule).add(word);
+					firstSet.add(word);
 				}
 				else
 				{
@@ -327,7 +326,7 @@ public class GrammarService implements IGrammarService
 				// Add empty word to the dictionary if the rule is empty.
 				if (topEntryRule.getNodes().isEmpty())
 				{
-					firstSetsDictionary.get(topEntryRule).add(
+					firstSet.add(
 						Word.getEmptyWord());
 				}
 

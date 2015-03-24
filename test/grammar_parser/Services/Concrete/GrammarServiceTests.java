@@ -29,7 +29,7 @@ public class GrammarServiceTests
 		Grammar grammar = new Grammar();
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -64,14 +64,14 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
-		testFirstSetDictionary.put(ruleOne,
+		testFirstSetDictionary.put(nodeA,
 			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -120,16 +120,16 @@ public class GrammarServiceTests
 		wordTwo.setNodes(Arrays.asList(nodeD));
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
-		testFirstSetDictionary.put(ruleOne,
+		testFirstSetDictionary.put(nodeA,
 			new HashSet<Word>(Arrays.asList(wordOne)));
-		testFirstSetDictionary.put(ruleTwo,
+		testFirstSetDictionary.put(nodeB,
 			new HashSet<Word>(Arrays.asList(wordTwo)));
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -172,15 +172,15 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
-		testFirstSetDictionary.put(ruleOne, new HashSet<Word>());
-		testFirstSetDictionary.put(ruleTwo, new HashSet<Word>());
-		testFirstSetDictionary.put(ruleThree, new HashSet<Word>());
+		testFirstSetDictionary.put(nodeA, new HashSet<Word>());
+		testFirstSetDictionary.put(nodeB, new HashSet<Word>());
+		testFirstSetDictionary.put(nodeC, new HashSet<Word>());
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -240,22 +240,20 @@ public class GrammarServiceTests
 		wordTwo.setNodes(Arrays.asList(nodeE));
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
 		testFirstSetDictionary.put(
-			ruleOne,
+			nodeA,
 			new HashSet<Word>(Arrays.asList(wordOne, wordTwo,
 				Word.getEmptyWord())));
-		testFirstSetDictionary.put(ruleTwo,
-			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
-		testFirstSetDictionary.put(ruleThree,
-			new HashSet<Word>(Arrays.asList(wordOne)));
-		testFirstSetDictionary.put(ruleFour,
+		testFirstSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne)));
+		testFirstSetDictionary.put(nodeC,
 			new HashSet<Word>(Arrays.asList(wordTwo)));
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -311,18 +309,18 @@ public class GrammarServiceTests
 		wordTwo.setNodes(Arrays.asList(nodeE));
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
-		testFirstSetDictionary.put(ruleOne,
+		testFirstSetDictionary.put(nodeA,
 			new HashSet<Word>(Arrays.asList(wordOne)));
-		testFirstSetDictionary.put(ruleTwo,
+		testFirstSetDictionary.put(nodeB,
 			new HashSet<Word>(Arrays.asList(wordOne)));
-		testFirstSetDictionary.put(ruleThree,
+		testFirstSetDictionary.put(nodeC,
 			new HashSet<Word>(Arrays.asList(wordTwo)));
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -351,13 +349,13 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
-		testFirstSetDictionary.put(ruleOne, new HashSet<Word>());
+		testFirstSetDictionary.put(nodeA, new HashSet<Word>());
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert
@@ -394,14 +392,14 @@ public class GrammarServiceTests
 		wordOne.setNodes(Arrays.asList(nodeB));
 
 		// Arrange - create testFirstSetDictionary
-		Map<Rule, Set<Word>> testFirstSetDictionary =
-			new HashMap<Rule, Set<Word>>();
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
 
-		testFirstSetDictionary.put(ruleOne,
+		testFirstSetDictionary.put(nodeA,
 			new HashSet<Word>(Arrays.asList(wordOne)));
 
 		// Act
-		Map<Rule, Set<Word>> firstSetDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			this._grammarService.getFirstSetDictionary(grammar);
 
 		// Assert

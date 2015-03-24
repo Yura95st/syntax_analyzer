@@ -104,18 +104,19 @@ public class Main
 			System.out.println(String.format("%1$s----- FIRST: -----%1$s",
 				System.getProperty("line.separator")));
 
-			Map<Rule, Set<Word>> firstSetDictionary =
+			Map<Node, Set<Word>> firstSetDictionary =
 				grammarService.getFirstSetDictionary(grammar);
 
-			for (Entry<Rule, Set<Word>> entry : firstSetDictionary.entrySet())
+			for (Entry<Node, Set<Word>> entry : firstSetDictionary.entrySet())
 			{
-				System.out.print(String.format("First(%1$s) :",
-					Main.ruleToString(entry.getKey(), specialNodesDictionary)));
+				System.out.println(String.format("First(%1$s) : {",
+					entry.getKey().getText()));
 
 				for (Word word : entry.getValue())
 				{
 					System.out.println(Main.wordToString(word));
 				}
+				System.out.println("}");
 			}
 		}
 		catch (Exception exception)
@@ -181,19 +182,26 @@ public class Main
 
 		boolean isFirstNode = true;
 
-		for (Node node : word.getNodes())
+		if (word.equals(Word.getEmptyWord()))
 		{
-			if (!isFirstNode)
+			stringBuilder.append("<empty-word>");
+		}
+		else
+		{
+			for (Node node : word.getNodes())
 			{
-				stringBuilder.append(",");
-			}
-			else
-			{
-				isFirstNode = false;
-			}
+				if (!isFirstNode)
+				{
+					stringBuilder.append(",");
+				}
+				else
+				{
+					isFirstNode = false;
+				}
 
-			stringBuilder.append(" ");
-			stringBuilder.append(node.getText());
+				stringBuilder.append(" ");
+				stringBuilder.append(node.getText());
+			}
 		}
 
 		String resultString = stringBuilder.toString();
