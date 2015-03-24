@@ -643,17 +643,28 @@ public class GrammarServiceTests
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
 		Node nodeB = new Node(NodeKind.Terminal, "b");
 
-		// Arrange - create rule
+		// Arrange - create rules
 		Rule ruleOne = new Rule(nodeA);
 
 		// A = "b", A .
 		ruleOne.addNode(nodeB);
 		ruleOne.addNode(nodeA);
 
+		// A = .
+		Rule ruleTwo = new Rule(nodeA);
+
+		Rule ruleThree = new Rule(nodeA);
+
+		// A = "b" .
+		ruleThree.addNode(nodeB);
+
 		// Arrange - create grammar
 		Grammar grammar = new Grammar();
 
 		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.addRule(ruleThree);
+
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create rightRecursiveRules list

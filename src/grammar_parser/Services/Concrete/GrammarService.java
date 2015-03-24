@@ -162,18 +162,18 @@ public class GrammarService implements IGrammarService
 			{
 				Node node = nodes.get(i);
 
+				// Right recursion is reached.
+				if (node.equals(rule.getHeadNode()))
+				{
+					return true;
+				}
+
 				Boolean nodeMark = ruleHeadNodesMarks.get(node);
 
 				if (nodeMark == null)
 				{
 					if (node.getKind() == NodeKind.Nonterminal)
 					{
-						// Right recursion is reached.
-						if (node.equals(rule.getHeadNode()))
-						{
-							return true;
-						}
-
 						for (Rule ruleToPush : grammar.getRules(node))
 						{
 							if (!rulesStack.contains(ruleToPush)
