@@ -328,6 +328,43 @@ public class GrammarServiceTests
 	}
 
 	@Test
+	public void getFirstSetDictionary_RuleWithNonterminalFromNonexistentRule_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B .
+		ruleOne.addNode(nodeB);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create testFirstSetDictionary
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFirstSetDictionary.put(nodeA, new HashSet<Word>());
+
+		testFirstSetDictionary.put(nodeB, new HashSet<Word>());
+
+		// Act
+		Map<Node, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
+	}
+
+	@Test
 	public void getFirstSetDictionary_RuleWithSimpleCycle_ReturnsValidDictionary()
 		throws Exception
 	{
@@ -404,6 +441,390 @@ public class GrammarServiceTests
 
 		// Assert
 		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
+	}
+
+	@Test
+	public void getFollowSetDictionary_GrammarIsEmpty_ReturnsEmptyDictionary()
+		throws Exception
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(0, followSetDictionary.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFollowSetDictionary_GrammarIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Act & Assert
+		this._grammarService.getFollowSetDictionary(null);
+	}
+
+	@Test
+	public void getFollowSetDictionary_RuleIsEmpty_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Terminal, "c");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = "c" .
+		ruleOne.addNode(nodeC);
+
+		// B = .
+		Rule ruleTwo = new Rule(nodeB);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create testFollowSetDictionary
+		Map<Node, Set<Word>> testFollowSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFollowSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+
+		testFollowSetDictionary.put(nodeB, new HashSet<Word>());
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFollowSetDictionary, followSetDictionary);
+	}
+
+	@Test
+	public void getFollowSetDictionary_RuleWithComplexCycle_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+		Node nodeD = new Node(NodeKind.Terminal, "d");
+		Node nodeE = new Node(NodeKind.Terminal, "e");
+		Node nodeF = new Node(NodeKind.Terminal, "f");
+
+		// Arrange - create rule
+
+		// A = B, "d" .
+		Rule ruleOne = new Rule(nodeA);
+
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeD);
+
+		// B = C, "e" .
+		Rule ruleTwo = new Rule(nodeB);
+
+		ruleTwo.addNode(nodeC);
+		ruleTwo.addNode(nodeE);
+
+		// C = B, "f" .
+		Rule ruleThree = new Rule(nodeC);
+
+		ruleThree.addNode(nodeB);
+		ruleThree.addNode(nodeF);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.addRule(ruleThree);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create words
+		Word wordOne = new Word();
+
+		// Word: d
+		wordOne.setNodes(Arrays.asList(nodeD));
+
+		Word wordTwo = new Word();
+
+		// Word: e
+		wordTwo.setNodes(Arrays.asList(nodeE));
+
+		Word wordThree = new Word();
+
+		// Word: f
+		wordThree.setNodes(Arrays.asList(nodeF));
+
+		// Arrange - create testFollowSetDictionary
+		Map<Node, Set<Word>> testFollowSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFollowSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+		testFollowSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(wordOne, wordThree)));
+		testFollowSetDictionary.put(nodeC,
+			new HashSet<Word>(Arrays.asList(wordTwo)));
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFollowSetDictionary, followSetDictionary);
+	}
+
+	@Test
+	public void getFollowSetDictionary_RuleWithEmptyLastNonterminal_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+		Node nodeD = new Node(NodeKind.Nonterminal, "D");
+		Node nodeE = new Node(NodeKind.Terminal, "e");
+		Node nodeF = new Node(NodeKind.Terminal, "f");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B, "e" .
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeE);
+
+		Rule ruleTwo = new Rule(nodeB);
+
+		// B = C, D .
+		ruleTwo.addNode(nodeE);
+		ruleTwo.addNode(nodeC);
+		ruleTwo.addNode(nodeD);
+
+		// D = .
+		Rule ruleThree = new Rule(nodeD);
+
+		Rule ruleFour = new Rule(nodeD);
+
+		// D = "f" .
+		ruleFour.addNode(nodeF);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.addRule(ruleThree);
+		grammar.addRule(ruleFour);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create words
+		Word wordOne = new Word();
+
+		// Word: e
+		wordOne.setNodes(Arrays.asList(nodeE));
+
+		Word wordTwo = new Word();
+
+		// Word: f
+		wordTwo.setNodes(Arrays.asList(nodeF));
+
+		// Arrange - create testFollowSetDictionary
+		Map<Node, Set<Word>> testFollowSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFollowSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+
+		testFollowSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+
+		testFollowSetDictionary.put(nodeC,
+			new HashSet<Word>(Arrays.asList(wordOne, wordTwo)));
+
+		testFollowSetDictionary.put(nodeD,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFollowSetDictionary, followSetDictionary);
+	}
+
+	@Test
+	public void getFollowSetDictionary_RuleWithSimpleCycle_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Terminal, "c");
+		Node nodeD = new Node(NodeKind.Terminal, "d");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = "c" .
+		ruleOne.addNode(nodeC);
+
+		Rule ruleTwo = new Rule(nodeA);
+
+		// B = "c", B, "d" .
+		ruleTwo.addNode(nodeC);
+		ruleTwo.addNode(nodeB);
+		ruleTwo.addNode(nodeD);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create words
+		Word wordOne = new Word();
+
+		// Word: d
+		wordOne.setNodes(Arrays.asList(nodeD));
+
+		// Arrange - create testFollowSetDictionary
+		Map<Node, Set<Word>> testFollowSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFollowSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+
+		testFollowSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFollowSetDictionary, followSetDictionary);
+	}
+
+	@Test
+	public void getFollowSetDictionary_RuleWithTwoNonterminals_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+		Node nodeD = new Node(NodeKind.Terminal, "d");
+		Node nodeE = new Node(NodeKind.Terminal, "e");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B, C .
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeC);
+
+		Rule ruleTwo = new Rule(nodeC);
+
+		// C = "d", "e" .
+		ruleTwo.addNode(nodeD);
+		ruleTwo.addNode(nodeE);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create words
+		Word wordOne = new Word();
+
+		// Word: d
+		wordOne.setNodes(Arrays.asList(nodeD));
+
+		// Arrange - create testFollowSetDictionary
+		Map<Node, Set<Word>> testFollowSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFollowSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+
+		testFollowSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+
+		testFollowSetDictionary.put(nodeC,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFollowSetDictionary, followSetDictionary);
+	}
+
+	@Test
+	public void getFollowSetDictionary_RuleWithTwoTerminals_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Terminal, "c");
+		Node nodeD = new Node(NodeKind.Terminal, "d");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B, "c", "d" .
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeC);
+		ruleOne.addNode(nodeD);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create words
+		Word wordOne = new Word();
+
+		// Word: c
+		wordOne.setNodes(Arrays.asList(nodeC));
+
+		// Arrange - create testFollowSetDictionary
+		Map<Node, Set<Word>> testFollowSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		testFollowSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+
+		testFollowSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(wordOne)));
+
+		// Act
+		Map<Node, Set<Word>> followSetDictionary =
+			this._grammarService.getFollowSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFollowSetDictionary, followSetDictionary);
 	}
 
 	@Test

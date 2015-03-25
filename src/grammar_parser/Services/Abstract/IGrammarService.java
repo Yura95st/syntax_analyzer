@@ -22,6 +22,17 @@ public interface IGrammarService
 		throws Exception;
 
 	/**
+	 * Gets the Follow set dictionary for the specified grammar.
+	 *
+	 * @param grammar
+	 *            the grammar
+	 * @return the Follow set dictionary
+	 * @throws Exception
+	 */
+	Map<Node, Set<Word>> getFollowSetDictionary(Grammar grammar)
+		throws Exception;
+
+	/**
 	 * Gets the nonterminal nodes for the specified grammar.
 	 *
 	 * @param grammar

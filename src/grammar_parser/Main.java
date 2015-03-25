@@ -109,14 +109,55 @@ public class Main
 
 			for (Entry<Node, Set<Word>> entry : firstSetDictionary.entrySet())
 			{
-				System.out.println(String.format("First(%1$s) : {",
+				System.out.print(String.format("First(%1$s) = { ",
 					entry.getKey().getText()));
+
+				boolean isFirstWord = true;
 
 				for (Word word : entry.getValue())
 				{
-					System.out.println(Main.wordToString(word));
+					if (!isFirstWord)
+					{
+						System.out.print(", ");
+					}
+					else
+					{
+						isFirstWord = false;
+					}
+
+					System.out.print(Main.wordToString(word));
 				}
-				System.out.println("}");
+
+				System.out.println(" }");
+			}
+
+			System.out.println(String.format("%1$s----- FOLLOW: -----%1$s",
+				System.getProperty("line.separator")));
+
+			Map<Node, Set<Word>> followSetDictionary = grammarService.getFollowSetDictionary(grammar);
+
+			for (Entry<Node, Set<Word>> entry : followSetDictionary.entrySet())
+			{
+				System.out.print(String.format("Follow(%1$s) = { ",
+					entry.getKey().getText()));
+
+				boolean isFirstWord = true;
+
+				for (Word word : entry.getValue())
+				{
+					if (!isFirstWord)
+					{
+						System.out.print(", ");
+					}
+					else
+					{
+						isFirstWord = false;
+					}
+
+					System.out.print(Main.wordToString(word));
+				}
+
+				System.out.println(" }");
 			}
 		}
 		catch (Exception exception)

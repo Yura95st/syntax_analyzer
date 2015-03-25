@@ -28,18 +28,75 @@ public class GrammarService implements IGrammarService
 	{
 		Guard.notNull(grammar, "grammar");
 
-		Map<Node, Set<Word>> firstSetsDictionary =
+		Map<Node, Set<Word>> firstSetDictionary =
 			new HashMap<Node, Set<Word>>();
+
+		// Set firstSet as empty set for each nonterminal node
+		for (Node nonterminalNode : this.getNonterminalNodes(grammar))
+		{
+			firstSetDictionary.put(nonterminalNode, new HashSet<Word>());
+		}
 
 		Set<Rule> visitedRules = new HashSet<Rule>();
 
 		for (Rule rule : this.getAllRulesFromGrammar(grammar))
 		{
-			this.processRuleFirstSet(rule, grammar, firstSetsDictionary,
+			this.processRuleFirstSet(rule, grammar, firstSetDictionary,
 				visitedRules);
 		}
 
-		return new HashMap<Node, Set<Word>>(firstSetsDictionary);
+		return firstSetDictionary;
+	}
+
+	@Override
+	public Map<Node, Set<Word>> getFollowSetDictionary(Grammar grammar)
+		throws Exception
+	{
+		Guard.notNull(grammar, "grammar");
+
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Set followSet as empty set for each nonterminal node
+		for (Node nonterminalNode : this.getNonterminalNodes(grammar))
+		{
+			followSetDictionary.put(nonterminalNode, new HashSet<Word>());
+		}
+
+		Rule headRule = grammar.getHeadRule();
+
+		if (headRule != null)
+		{
+			// Add empty word to the followSet of the headRule's headNode
+			followSetDictionary.get(headRule.getHeadNode()).add(
+				Word.getEmptyWord());
+		}
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			this.getFirstSetDictionary(grammar);
+
+		List<Rule> rules = this.getAllRulesFromGrammar(grammar);
+
+		boolean continueTheProcess = true;
+
+		while (continueTheProcess)
+		{
+			continueTheProcess = false;
+
+			for (Rule rule : rules)
+			{
+				boolean followSetIsChanged =
+					this.processRuleFollowSet(rule, grammar,
+						firstSetDictionary, followSetDictionary);
+
+				if (!continueTheProcess && followSetIsChanged)
+				{
+					continueTheProcess = true;
+				}
+			}
+		}
+
+		return followSetDictionary;
 	}
 
 	@Override
@@ -105,6 +162,53 @@ public class GrammarService implements IGrammarService
 			new AbstractMap.SimpleEntry<Rule, List<Node>>(rule, rule.getNodes());
 
 		return entry;
+	}
+
+	private Set<Word> getFirstPlusFollowSet(Set<Word> firstSet,
+		Set<Word> followSet)
+	{
+		Set<Word> firstPlusFollowSet = new HashSet<Word>(firstSet);
+
+		if (firstPlusFollowSet.contains(Word.getEmptyWord()))
+		{
+			firstPlusFollowSet.addAll(followSet);
+		}
+
+		return firstPlusFollowSet;
+	}
+
+	private Set<Word> getFirstSetForNodesList(List<Node> nodes,
+		Grammar grammar, Map<Node, Set<Word>> firstSetDictionary)
+		throws NodeIsNotTerminalException
+	{
+		Set<Word> firstSet = new HashSet<Word>();
+
+		for (Node node : nodes)
+		{
+			if (node.getKind() == NodeKind.Terminal)
+			{
+				Word word = new Word();
+
+				word.setNodes(Arrays.asList(node));
+
+				firstSet.add(word);
+
+				break;
+			}
+			else
+			{
+				Set<Word> words = firstSetDictionary.get(node);
+
+				firstSet.addAll(words);
+
+				if (!words.contains(Word.getEmptyWord()))
+				{
+					break;
+				}
+			}
+		}
+
+		return firstSet;
 	}
 
 	private Set<Node> getNodesFromGrammarByNodeKind(Grammar grammar,
@@ -239,7 +343,7 @@ public class GrammarService implements IGrammarService
 	}
 
 	private void processRuleFirstSet(Rule ruleToProcess, Grammar grammar,
-		Map<Node, Set<Word>> firstSetsDictionary, Set<Rule> visitedRules)
+		Map<Node, Set<Word>> firstSetDictionary, Set<Rule> visitedRules)
 		throws NodeIsNotTerminalException
 	{
 		Stack<Entry<Rule, List<Node>>> entriesStack =
@@ -256,9 +360,7 @@ public class GrammarService implements IGrammarService
 
 			Node topEntryHeadNode = topEntryRule.getHeadNode();
 
-			firstSetsDictionary.putIfAbsent(topEntryHeadNode, new HashSet<Word>());
-
-			Set<Word> firstSet = firstSetsDictionary.get(topEntryHeadNode);
+			Set<Word> firstSet = firstSetDictionary.get(topEntryHeadNode);
 
 			if (visitedRules.contains(topEntryRule) && !topEntryNodes.isEmpty())
 			{
@@ -271,7 +373,7 @@ public class GrammarService implements IGrammarService
 				}
 				else
 				{
-					Set<Word> words = firstSetsDictionary.get(firstNode);
+					Set<Word> words = firstSetDictionary.get(firstNode);
 
 					firstSet.addAll(words);
 
@@ -326,12 +428,61 @@ public class GrammarService implements IGrammarService
 				// Add empty word to the dictionary if the rule is empty.
 				if (topEntryRule.getNodes().isEmpty())
 				{
-					firstSet.add(
-						Word.getEmptyWord());
+					firstSet.add(Word.getEmptyWord());
 				}
 
 				entriesStack.pop();
 			}
 		}
+	}
+
+	private boolean processRuleFollowSet(Rule ruleToProcess, Grammar grammar,
+		Map<Node, Set<Word>> firstSetDictionary,
+		Map<Node, Set<Word>> followSetDictionary)
+		throws NodeIsNotTerminalException
+	{
+		boolean followSetIsChanged = false;
+
+		List<Node> nodes = ruleToProcess.getNodes();
+
+		for (Node node : nodes)
+		{
+			if (node.getKind() == NodeKind.Nonterminal)
+			{
+				Set<Word> followSet = followSetDictionary.get(node);
+
+				Set<Word> oldFollowSet = new HashSet<Word>(followSet);
+
+				List<Node> nodesSubList =
+					nodes.subList(nodes.indexOf(node) + 1, nodes.size());
+
+				if (nodesSubList.isEmpty())
+				{
+					followSet.addAll(followSetDictionary.get(ruleToProcess
+							.getHeadNode()));
+				}
+				else
+				{
+					Set<Word> firstSet =
+						this.getFirstSetForNodesList(nodesSubList, grammar,
+							firstSetDictionary);
+
+					if (firstSet.remove(Word.getEmptyWord()))
+					{
+						followSet.addAll(followSetDictionary.get(ruleToProcess
+								.getHeadNode()));
+					}
+
+					followSet.addAll(firstSet);
+				}
+
+				if (!followSetIsChanged && !oldFollowSet.equals(followSet))
+				{
+					followSetIsChanged = true;
+				}
+			}
+		}
+
+		return followSetIsChanged;
 	}
 }
