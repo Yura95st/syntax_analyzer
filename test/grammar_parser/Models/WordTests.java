@@ -84,4 +84,48 @@ public class WordTests
 		this._word = new Word();
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void wordConstructor_NodesArrayIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Act & Assert
+		this._word = new Word((Node[]) null);
+	}
+
+	@Test
+	public void wordConstructor_NodesArrayIsValid_SetsNewNodes()
+		throws Exception
+	{
+		// Arrange
+		Node[] nodes =
+			{
+				new Node(NodeKind.Terminal, "terminalOne"),
+				new Node(NodeKind.Terminal, "terminalTwo"),
+				new Node(NodeKind.Terminal, "terminalThree")
+			};
+
+		// Act
+		this._word = new Word(nodes);
+
+		// Assert
+		List<Node> nodesList = this._word.getNodes();
+
+		Assert.assertEquals(Arrays.asList(nodes), nodesList);
+	}
+
+	@Test(expected = NodeIsNotTerminalException.class)
+	public void wordConstructor_OneOfTheNodesIsNotTerminal_ThrowsNodeIsNotTerminalException()
+		throws Exception
+	{
+		// Arrange
+		Node[] nodes =
+			{
+				new Node(NodeKind.Terminal, "terminal"),
+				new Node(NodeKind.Nonterminal, "nonterminal")
+			};
+
+		// Act & Assert
+		this._word = new Word(nodes);
+	}
+
 }

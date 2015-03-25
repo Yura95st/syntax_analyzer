@@ -109,15 +109,12 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: c
-		wordOne.setNodes(Arrays.asList(nodeC));
-
-		Word wordTwo = new Word();
+		Word wordOne = new Word(nodeC);
 
 		// Word: d
-		wordTwo.setNodes(Arrays.asList(nodeD));
+		Word wordTwo = new Word(nodeD);
 
 		// Arrange - create testFirstSetDictionary
 		Map<Node, Set<Word>> testFirstSetDictionary =
@@ -229,15 +226,12 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(nodeD));
-
-		Word wordTwo = new Word();
+		Word wordOne = new Word(nodeD);
 
 		// Word: e
-		wordTwo.setNodes(Arrays.asList(nodeE));
+		Word wordTwo = new Word(nodeE);
 
 		// Arrange - create testFirstSetDictionary
 		Map<Node, Set<Word>> testFirstSetDictionary =
@@ -298,15 +292,12 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(nodeD));
-
-		Word wordTwo = new Word();
+		Word wordOne = new Word(nodeD);
 
 		// Word: e
-		wordTwo.setNodes(Arrays.asList(nodeE));
+		Word wordTwo = new Word(nodeE);
 
 		// Arrange - create testFirstSetDictionary
 		Map<Node, Set<Word>> testFirstSetDictionary =
@@ -423,10 +414,9 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: b
-		wordOne.setNodes(Arrays.asList(nodeB));
+		Word wordOne = new Word(nodeB);
 
 		// Arrange - create testFirstSetDictionary
 		Map<Node, Set<Word>> testFirstSetDictionary =
@@ -551,20 +541,15 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(nodeD));
-
-		Word wordTwo = new Word();
+		Word wordOne = new Word(nodeD);
 
 		// Word: e
-		wordTwo.setNodes(Arrays.asList(nodeE));
-
-		Word wordThree = new Word();
+		Word wordTwo = new Word(nodeE);
 
 		// Word: f
-		wordThree.setNodes(Arrays.asList(nodeF));
+		Word wordThree = new Word(nodeF);
 
 		// Arrange - create testFollowSetDictionary
 		Map<Node, Set<Word>> testFollowSetDictionary =
@@ -630,15 +615,12 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: e
-		wordOne.setNodes(Arrays.asList(nodeE));
-
-		Word wordTwo = new Word();
+		Word wordOne = new Word(nodeE);
 
 		// Word: f
-		wordTwo.setNodes(Arrays.asList(nodeF));
+		Word wordTwo = new Word(nodeF);
 
 		// Arrange - create testFollowSetDictionary
 		Map<Node, Set<Word>> testFollowSetDictionary =
@@ -696,10 +678,9 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(nodeD));
+		Word wordOne = new Word(nodeD);
 
 		// Arrange - create testFollowSetDictionary
 		Map<Node, Set<Word>> testFollowSetDictionary =
@@ -752,10 +733,9 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: d
-		wordOne.setNodes(Arrays.asList(nodeD));
+		Word wordOne = new Word(nodeD);
 
 		// Arrange - create testFollowSetDictionary
 		Map<Node, Set<Word>> testFollowSetDictionary =
@@ -804,10 +784,9 @@ public class GrammarServiceTests
 		grammar.setHeadRule(ruleOne);
 
 		// Arrange - create words
-		Word wordOne = new Word();
 
 		// Word: c
-		wordOne.setNodes(Arrays.asList(nodeC));
+		Word wordOne = new Word(nodeC);
 
 		// Arrange - create testFollowSetDictionary
 		Map<Node, Set<Word>> testFollowSetDictionary =

@@ -233,14 +233,13 @@ public class Main
 			{
 				if (!isFirstNode)
 				{
-					stringBuilder.append(",");
+					stringBuilder.append(", ");
 				}
 				else
 				{
 					isFirstNode = false;
 				}
 
-				stringBuilder.append(" ");
 				stringBuilder.append(node.getText());
 			}
 		}

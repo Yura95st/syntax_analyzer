@@ -187,9 +187,7 @@ public class GrammarService implements IGrammarService
 		{
 			if (node.getKind() == NodeKind.Terminal)
 			{
-				Word word = new Word();
-
-				word.setNodes(Arrays.asList(node));
+				Word word = new Word(node);
 
 				firstSet.add(word);
 
@@ -402,9 +400,7 @@ public class GrammarService implements IGrammarService
 
 				if (firstNode.getKind() == NodeKind.Terminal)
 				{
-					Word word = new Word();
-
-					word.setNodes(Arrays.asList(firstNode));
+					Word word = new Word(firstNode);
 
 					// Add word to the dictionary
 					firstSet.add(word);

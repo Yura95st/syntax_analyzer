@@ -5,6 +5,7 @@ import grammar_parser.Exceptions.NodeIsNotTerminalException;
 import grammar_parser.Utils.Guard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Word
@@ -26,6 +27,18 @@ public class Word
 	public Word()
 	{
 		this._nodes = new ArrayList<Node>();
+	}
+
+	public Word(Node... nodes) throws NodeIsNotTerminalException
+	{
+		this();
+
+		Guard.notNull(nodes, "nodes");
+
+		if (nodes.length > 0)
+		{
+			this.setNodes(Arrays.asList(nodes));
+		}
 	}
 
 	@Override
@@ -75,7 +88,7 @@ public class Word
 	}
 
 	public void setNodes(Iterable<Node> nodes)
-			throws NodeIsNotTerminalException
+		throws NodeIsNotTerminalException
 	{
 		Guard.notNull(nodes, "nodes");
 
