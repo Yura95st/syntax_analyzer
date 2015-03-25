@@ -25,6 +25,97 @@ public class GrammarServiceTests
 	IGrammarService _grammarService;
 
 	@Test
+	public void getFirstPlusFollowSet_FirstSetContainsEmptySet_ReturnsTheUnionOfFirstAndFollowSets()
+		throws Exception
+	{
+		// Arrange - create words
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "a"));
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "b"));
+
+		// Arrange - create first and follow sets
+		Set<Word> firstSet =
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne));
+		Set<Word> followSet = new HashSet<Word>(Arrays.asList(wordTwo));
+
+		// Arrange - create testFirstSetForNodesList
+		Set<Word> testFirstPlusFollowSet =
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne,
+				wordTwo));
+
+		// Act
+		Set<Word> firstPlusFollowSet =
+			this._grammarService.getFirstPlusFollowSet(firstSet, followSet);
+
+		// Assert
+		Assert.assertEquals(testFirstPlusFollowSet, firstPlusFollowSet);
+	}
+
+	@Test
+	public void getFirstPlusFollowSet_FirstSetDoesNotContainEmptySet_ReturnsTheFirstSet()
+		throws Exception
+	{
+		// Arrange - create words
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "a"));
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "b"));
+
+		// Arrange - create first and follow sets
+		Set<Word> firstSet = new HashSet<Word>(Arrays.asList(wordOne));
+		Set<Word> followSet = new HashSet<Word>(Arrays.asList(wordTwo));
+
+		// Arrange - create testFirstSetForNodesList
+		Set<Word> testFirstPlusFollowSet =
+			new HashSet<Word>(Arrays.asList(wordOne));
+
+		// Act
+		Set<Word> firstPlusFollowSet =
+			this._grammarService.getFirstPlusFollowSet(firstSet, followSet);
+
+		// Assert
+		Assert.assertEquals(testFirstPlusFollowSet, firstPlusFollowSet);
+	}
+
+	@Test
+	public void getFirstPlusFollowSet_FirstSetIsEmpty_ReturnsEmptySet()
+		throws Exception
+	{
+		// Arrange - create words
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "a"));
+
+		// Arrange - create first and follow sets
+		Set<Word> firstSet = new HashSet<Word>();
+		Set<Word> followSet = new HashSet<Word>(Arrays.asList(wordOne));
+
+		// Act
+		Set<Word> firstPlusFollowSet =
+			this._grammarService.getFirstPlusFollowSet(firstSet, followSet);
+
+		// Assert
+		Assert.assertEquals(0, firstPlusFollowSet.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstPlusFollowSet_FirstSetIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Set<Word> followSet = new HashSet<Word>();
+
+		// Act & Assert
+		this._grammarService.getFirstPlusFollowSet(null, followSet);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstPlusFollowSet_FollowSetIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Set<Word> firstSet = new HashSet<Word>();
+
+		// Act & Assert
+		this._grammarService.getFirstPlusFollowSet(firstSet, null);
+	}
+
+	@Test
 	public void getFirstSetDictionary_GrammarIsEmpty_ReturnsEmptyDictionary()
 		throws Exception
 	{

@@ -12,6 +12,17 @@ import java.util.Set;
 public interface IGrammarService
 {
 	/**
+	 * Gets the first plus follow set.
+	 *
+	 * @param firstSet
+	 *            the first set
+	 * @param followSet
+	 *            the follow set
+	 * @return the first plus follow set
+	 */
+	Set<Word> getFirstPlusFollowSet(Set<Word> firstSet, Set<Word> followSet);
+
+	/**
 	 * Gets the First set dictionary for the specified grammar.
 	 *
 	 * @param grammar

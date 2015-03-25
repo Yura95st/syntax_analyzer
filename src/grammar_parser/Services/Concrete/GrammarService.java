@@ -23,6 +23,23 @@ import java.util.Stack;
 public class GrammarService implements IGrammarService
 {
 	@Override
+	public Set<Word> getFirstPlusFollowSet(Set<Word> firstSet,
+		Set<Word> followSet)
+	{
+		Guard.notNull(firstSet, "firstSet");
+		Guard.notNull(followSet, "followSet");
+
+		Set<Word> firstPlusFollowSet = new HashSet<Word>(firstSet);
+
+		if (firstPlusFollowSet.contains(Word.getEmptyWord()))
+		{
+			firstPlusFollowSet.addAll(followSet);
+		}
+
+		return firstPlusFollowSet;
+	}
+
+	@Override
 	public Map<Node, Set<Word>> getFirstSetDictionary(Grammar grammar)
 		throws Exception
 	{
@@ -205,19 +222,6 @@ public class GrammarService implements IGrammarService
 			new AbstractMap.SimpleEntry<Rule, List<Node>>(rule, rule.getNodes());
 
 		return entry;
-	}
-
-	private Set<Word> getFirstPlusFollowSet(Set<Word> firstSet,
-		Set<Word> followSet)
-	{
-		Set<Word> firstPlusFollowSet = new HashSet<Word>(firstSet);
-
-		if (firstPlusFollowSet.contains(Word.getEmptyWord()))
-		{
-			firstPlusFollowSet.addAll(followSet);
-		}
-
-		return firstPlusFollowSet;
 	}
 
 	private Set<Node> getNodesFromGrammarByNodeKind(Grammar grammar,
