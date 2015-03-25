@@ -2,6 +2,7 @@ package grammar_parser.Services.Concrete;
 
 import grammar_parser.Enums.NodeKind;
 import grammar_parser.Exceptions.NodeIsNotTerminalException;
+import grammar_parser.Exceptions.NonexistentNodeException;
 import grammar_parser.Models.Grammar;
 import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
@@ -11,7 +12,6 @@ import grammar_parser.Utils.Guard;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +46,49 @@ public class GrammarService implements IGrammarService
 		}
 
 		return firstSetDictionary;
+	}
+
+	@Override
+	public Set<Word> getFirstSetForNodesList(List<Node> nodes,
+		Map<Node, Set<Word>> firstSetDictionary) throws Exception
+	{
+		Guard.notNull(nodes, "nodes");
+		Guard.notNull(firstSetDictionary, "firstSetDictionary");
+
+		Set<Word> firstSet = new HashSet<Word>();
+
+		for (Node node : nodes)
+		{
+			if (node.getKind() == NodeKind.Terminal)
+			{
+				Word word = new Word(node);
+
+				firstSet.add(word);
+
+				break;
+			}
+			else
+			{
+				Set<Word> words = firstSetDictionary.get(node);
+
+				if (words == null)
+				{
+					throw new NonexistentNodeException(
+						String.format(
+							"Node with text '%1$s' doesn't exist in firstSetDictionary as a key.",
+							node.getText()));
+				}
+
+				firstSet.addAll(words);
+
+				if (!words.contains(Word.getEmptyWord()))
+				{
+					break;
+				}
+			}
+		}
+
+		return firstSet;
 	}
 
 	@Override
@@ -175,38 +218,6 @@ public class GrammarService implements IGrammarService
 		}
 
 		return firstPlusFollowSet;
-	}
-
-	private Set<Word> getFirstSetForNodesList(List<Node> nodes,
-		Grammar grammar, Map<Node, Set<Word>> firstSetDictionary)
-		throws NodeIsNotTerminalException
-	{
-		Set<Word> firstSet = new HashSet<Word>();
-
-		for (Node node : nodes)
-		{
-			if (node.getKind() == NodeKind.Terminal)
-			{
-				Word word = new Word(node);
-
-				firstSet.add(word);
-
-				break;
-			}
-			else
-			{
-				Set<Word> words = firstSetDictionary.get(node);
-
-				firstSet.addAll(words);
-
-				if (!words.contains(Word.getEmptyWord()))
-				{
-					break;
-				}
-			}
-		}
-
-		return firstSet;
 	}
 
 	private Set<Node> getNodesFromGrammarByNodeKind(Grammar grammar,
@@ -434,8 +445,7 @@ public class GrammarService implements IGrammarService
 
 	private boolean processRuleFollowSet(Rule ruleToProcess, Grammar grammar,
 		Map<Node, Set<Word>> firstSetDictionary,
-		Map<Node, Set<Word>> followSetDictionary)
-		throws NodeIsNotTerminalException
+		Map<Node, Set<Word>> followSetDictionary) throws Exception
 	{
 		boolean followSetIsChanged = false;
 
@@ -460,7 +470,7 @@ public class GrammarService implements IGrammarService
 				else
 				{
 					Set<Word> firstSet =
-						this.getFirstSetForNodesList(nodesSubList, grammar,
+						this.getFirstSetForNodesList(nodesSubList,
 							firstSetDictionary);
 
 					if (firstSet.remove(Word.getEmptyWord()))

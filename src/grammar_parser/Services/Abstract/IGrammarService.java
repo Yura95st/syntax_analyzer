@@ -5,6 +5,7 @@ import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
 import grammar_parser.Models.Word;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +21,20 @@ public interface IGrammarService
 	 */
 	Map<Node, Set<Word>> getFirstSetDictionary(Grammar grammar)
 		throws Exception;
+
+	/**
+	 * Gets the first set for the specified list of nodes.
+	 *
+	 * @param nodes
+	 *            the list of nodes
+	 * @param firstSetDictionary
+	 *            the first set dictionary
+	 * @return the first set for the specified list of nodes
+	 * @throws Exception
+	 *             the exception
+	 */
+	Set<Word> getFirstSetForNodesList(List<Node> nodes,
+		Map<Node, Set<Word>> firstSetDictionary) throws Exception;
 
 	/**
 	 * Gets the Follow set dictionary for the specified grammar.

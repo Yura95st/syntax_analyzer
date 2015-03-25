@@ -1,15 +1,18 @@
 package grammar_parser.Services.Concrete;
 
 import grammar_parser.Enums.NodeKind;
+import grammar_parser.Exceptions.NonexistentNodeException;
 import grammar_parser.Models.Grammar;
 import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
 import grammar_parser.Models.Word;
 import grammar_parser.Services.Abstract.IGrammarService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -431,6 +434,172 @@ public class GrammarServiceTests
 
 		// Assert
 		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
+	}
+
+	@Test
+	public void getFirstSetForNodesList_FirstNodeIsTerminalNode_ReturnsValidSet()
+		throws Exception
+	{
+		// Arrange - create nodesList
+		Node nodeA = new Node(NodeKind.Terminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+
+		List<Node> nodesList = Arrays.asList(nodeA, nodeB);
+
+		// Arrange - create words
+		Word wordOne = new Word(nodeA);
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "c"));
+
+		// Arrange - create firstSetDictionary
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary
+				.put(nodeB, new HashSet<Word>(Arrays.asList(wordTwo)));
+
+		// Arrange - create testFirstSetForNodesList
+		Set<Word> testFirstSetForNodesList =
+			new HashSet<Word>(Arrays.asList(wordOne));
+
+		// Act
+		Set<Word> firstSetForNodesList =
+			this._grammarService.getFirstSetForNodesList(nodesList,
+				firstSetDictionary);
+
+		// Assert
+		Assert.assertEquals(testFirstSetForNodesList, firstSetForNodesList);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstSetForNodesList_FirstSetDictionaryIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		List<Node> nodesList = new ArrayList<Node>();
+
+		// Act & Assert
+		this._grammarService.getFirstSetForNodesList(nodesList, null);
+	}
+
+	@Test
+	public void getFirstSetForNodesList_FirstSetOfTheFirstNodeContainsEmptyWord_ReturnsValidSet()
+		throws Exception
+	{
+		// Arrange - create nodesList
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+
+		List<Node> nodesList = Arrays.asList(nodeA, nodeB);
+
+		// Arrange - create words
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "c"));
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "d"));
+
+		// Arrange - create firstSetDictionary
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne)));
+		firstSetDictionary
+				.put(nodeB, new HashSet<Word>(Arrays.asList(wordTwo)));
+
+		// Arrange - create testFirstSetForNodesList
+		Set<Word> testFirstSetForNodesList =
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne,
+				wordTwo));
+
+		// Act
+		Set<Word> firstSetForNodesList =
+			this._grammarService.getFirstSetForNodesList(nodesList,
+				firstSetDictionary);
+
+		// Assert
+		Assert.assertEquals(testFirstSetForNodesList, firstSetForNodesList);
+	}
+
+	@Test
+	public void getFirstSetForNodesList_FirstSetOfTheFirstNodeDoesNotContainEmptyWord_ReturnsValidSet()
+		throws Exception
+	{
+		// Arrange - create nodesList
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+
+		List<Node> nodesList = Arrays.asList(nodeA, nodeB);
+
+		// Arrange - create words
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "c"));
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "d"));
+
+		// Arrange - create firstSetDictionary
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary
+				.put(nodeA, new HashSet<Word>(Arrays.asList(wordOne)));
+		firstSetDictionary
+				.put(nodeB, new HashSet<Word>(Arrays.asList(wordTwo)));
+
+		// Arrange - create testFirstSetForNodesList
+		Set<Word> testFirstSetForNodesList =
+			new HashSet<Word>(Arrays.asList(wordOne));
+
+		// Act
+		Set<Word> firstSetForNodesList =
+			this._grammarService.getFirstSetForNodesList(nodesList,
+				firstSetDictionary);
+
+		// Assert
+		Assert.assertEquals(testFirstSetForNodesList, firstSetForNodesList);
+	}
+
+	@Test
+	public void getFirstSetForNodesList_NodesListIsEmpty_ReturnsEmptySet()
+		throws Exception
+	{
+		// Arrange
+		List<Node> nodesList = new ArrayList<Node>();
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act
+		Set<Word> firstSetForNodesList =
+			this._grammarService.getFirstSetForNodesList(nodesList,
+				firstSetDictionary);
+
+		// Assert
+		Assert.assertEquals(0, firstSetForNodesList.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getFirstSetForNodesList_NodesListIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act & Assert
+		this._grammarService.getFirstSetForNodesList(null, firstSetDictionary);
+	}
+
+	@Test(expected = NonexistentNodeException.class)
+	public void getFirstSetForNodesList_OneOfTheNodesDoesNotExistInFirstSetDictionary_ThrowsNonexistentNodeException()
+		throws Exception
+	{
+		// Arrange
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+
+		List<Node> nodesList = Arrays.asList(nodeA);
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act & Assert
+		this._grammarService.getFirstSetForNodesList(nodesList,
+			firstSetDictionary);
 	}
 
 	@Test
