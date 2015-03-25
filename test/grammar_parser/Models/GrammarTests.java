@@ -1,19 +1,18 @@
 package grammar_parser.Models;
 
-import java.util.Arrays;
+import grammar_parser.Enums.NodeKind;
+import grammar_parser.Exceptions.NonexistentRuleException;
+import grammar_parser.Exceptions.RuleAlreadyExistsException;
+
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import grammar_parser.Enums.NodeKind;
-import grammar_parser.Exceptions.NonexistentRuleException;
-import grammar_parser.Exceptions.RuleAlreadyExistsException;
-
 public class GrammarTests
 {
-	Grammar _grammar;
+	private Grammar _grammar;
 
 	@Test(expected = RuleAlreadyExistsException.class)
 	public void addRule_RuleAlreadyExists_ThrowsRuleAlreadyExistsException()
@@ -135,6 +134,66 @@ public class GrammarTests
 		Assert.assertFalse(rules.contains(testRule));
 	}
 
+	@Test
+	public void equals_TwoGrammarsHaveDifferentHeadRuleAndRulesDictionaryFields_ReturnsFalse()
+		throws Exception
+	{
+		// Arrange
+		Rule ruleOne = new Rule(new Node(NodeKind.Nonterminal, "A"));
+		Rule ruleTwo = new Rule(new Node(NodeKind.Nonterminal, "B"));
+
+		Grammar grammarOne = new Grammar();
+
+		grammarOne.addRule(ruleOne);
+		grammarOne.addRule(ruleTwo);
+		grammarOne.setHeadRule(ruleTwo);
+
+		Grammar grammarTwo = new Grammar();
+
+		grammarTwo.addRule(ruleOne);
+		grammarTwo.addRule(ruleTwo);
+		grammarTwo.setHeadRule(ruleOne);
+
+		Grammar grammarThree = new Grammar();
+
+		grammarThree.addRule(ruleTwo);
+		grammarThree.setHeadRule(ruleTwo);
+
+		// Act
+		boolean resultOne = grammarOne.equals(grammarTwo);
+		boolean resultTwo = grammarOne.equals(grammarThree);
+		boolean resultThree = grammarTwo.equals(grammarThree);
+
+		// Assert
+		Assert.assertEquals(false, resultOne);
+		Assert.assertEquals(false, resultTwo);
+		Assert.assertEquals(false, resultThree);
+	}
+
+	@Test
+	public void equals_TwoGrammarsHaveEqualHeadRuleAndRulesDictionaryFields_ReturnsTrue()
+		throws Exception
+	{
+		// Arrange
+		Rule rule = new Rule(new Node(NodeKind.Nonterminal, "A"));
+
+		Grammar grammarOne = new Grammar();
+
+		grammarOne.addRule(rule);
+		grammarOne.setHeadRule(rule);
+
+		Grammar grammarTwo = new Grammar();
+
+		grammarTwo.addRule(rule);
+		grammarTwo.setHeadRule(rule);
+
+		// Act
+		boolean result = grammarOne.equals(grammarTwo);
+
+		// Assert
+		Assert.assertEquals(true, result);
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void getRules_HeadNodeIsNull_ThrowsIllegalArgumentException()
 	{
@@ -170,8 +229,69 @@ public class GrammarTests
 	}
 
 	@Test
+	public void hashCode_TwoGrammarsHaveDifferentHeadRuleAndRulesDictionaryFields_ReturnsDifferentHashCodes()
+		throws Exception
+	{
+		// Arrange
+		Rule ruleOne = new Rule(new Node(NodeKind.Nonterminal, "A"));
+		Rule ruleTwo = new Rule(new Node(NodeKind.Nonterminal, "B"));
+
+		Grammar grammarOne = new Grammar();
+
+		grammarOne.addRule(ruleOne);
+		grammarOne.addRule(ruleTwo);
+		grammarOne.setHeadRule(ruleTwo);
+
+		Grammar grammarTwo = new Grammar();
+
+		grammarTwo.addRule(ruleOne);
+		grammarTwo.addRule(ruleTwo);
+		grammarTwo.setHeadRule(ruleOne);
+
+		Grammar grammarThree = new Grammar();
+
+		grammarThree.addRule(ruleTwo);
+		grammarThree.setHeadRule(ruleTwo);
+
+		// Act
+		int hashCodeOne = grammarOne.hashCode();
+		int hashCodeTwo = grammarTwo.hashCode();
+		int hashCodeThree = grammarThree.hashCode();
+
+		// Assert
+		Assert.assertNotEquals(hashCodeOne, hashCodeTwo);
+		Assert.assertNotEquals(hashCodeOne, hashCodeThree);
+		Assert.assertNotEquals(hashCodeTwo, hashCodeThree);
+	}
+
+	@Test
+	public void hashCode_TwoGrammarsHaveEqualHeadRuleAndRulesDictionaryFields_ReturnsEqualHashCodes()
+		throws Exception
+	{
+		// Arrange
+		Rule rule = new Rule(new Node(NodeKind.Nonterminal, "A"));
+
+		Grammar grammarOne = new Grammar();
+
+		grammarOne.addRule(rule);
+		grammarOne.setHeadRule(rule);
+
+		Grammar grammarTwo = new Grammar();
+
+		grammarTwo.addRule(rule);
+		grammarTwo.setHeadRule(rule);
+
+		// Act
+		int hashCodeOne = grammarOne.hashCode();
+		int hashCodeTwo = grammarTwo.hashCode();
+
+		// Assert
+		Assert.assertEquals(hashCodeOne, hashCodeTwo);
+	}
+
+	@Test
 	public void setHeadRule_HeadRuleIsNull_SetsHeadRuleAsNull()
-			throws Exception
+		throws Exception
 	{
 		// Arrange
 		Rule testHeadRule = new Rule(new Node(NodeKind.Nonterminal, "node"));

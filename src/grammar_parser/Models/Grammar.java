@@ -1,14 +1,14 @@
 package grammar_parser.Models;
 
+import grammar_parser.Exceptions.NonexistentRuleException;
+import grammar_parser.Exceptions.RuleAlreadyExistsException;
+import grammar_parser.Utils.Guard;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import grammar_parser.Exceptions.NonexistentRuleException;
-import grammar_parser.Exceptions.RuleAlreadyExistsException;
-import grammar_parser.Utils.Guard;
 
 public class Grammar
 {
@@ -155,13 +155,15 @@ public class Grammar
 		final int prime = 31;
 		int result = 1;
 
-		result = prime * result
+		result =
+			prime * result
 				+ ((this._headRule == null) ? 0 : this._headRule.hashCode());
 
-		result = prime
-			* result
+		result =
+			prime
+				* result
 				+ ((this._rulesDictionary == null) ? 0 : this._rulesDictionary
-					.hashCode());
+						.hashCode());
 
 		return result;
 	}
@@ -170,8 +172,8 @@ public class Grammar
 	{
 		if (headRule != null)
 		{
-			List<Rule> rules = this._rulesDictionary
-					.get(headRule.getHeadNode());
+			List<Rule> rules =
+				this._rulesDictionary.get(headRule.getHeadNode());
 
 			if (rules == null || !rules.contains(headRule))
 			{

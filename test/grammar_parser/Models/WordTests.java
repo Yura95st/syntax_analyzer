@@ -15,6 +15,38 @@ public class WordTests
 	private Word _word;
 
 	@Test
+	public void equals_TwoWordsHaveDifferentNodes_ReturnsFalse()
+		throws Exception
+	{
+		// Arrange
+		Word wordOne = Word.getEmptyWord();
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "a"));
+
+		// Act
+		boolean result = wordOne.equals(wordTwo);
+
+		// Assert
+		Assert.assertEquals(false, result);
+	}
+
+	@Test
+	public void equals_TwoWordsHaveEqualNodes_ReturnsTrue() throws Exception
+	{
+		// Arrange
+		Node nodeOne = new Node(NodeKind.Terminal, "a");
+		Node nodeTwo = new Node(NodeKind.Terminal, "b");
+
+		Word wordOne = new Word(nodeOne, nodeTwo);
+		Word wordTwo = new Word(nodeOne, nodeTwo);
+
+		// Act
+		boolean result = wordOne.equals(wordTwo);
+
+		// Assert
+		Assert.assertEquals(true, result);
+	}
+
+	@Test
 	public void getEmptyWord_EachTimeReturnsTheSameWord()
 	{
 		// Act
@@ -36,6 +68,41 @@ public class WordTests
 
 		// Assert
 		Assert.assertEquals(testEmptyWord, emptyWord);
+	}
+
+	@Test
+	public void hashCode_TwoWordsHaveDifferentNodes_ReturnsDifferentHashCodes()
+		throws Exception
+	{
+		// Arrange
+		Word wordOne = Word.getEmptyWord();
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "a"));
+
+		// Act
+		int hashCodeOne = wordOne.hashCode();
+		int hashCodeTwo = wordTwo.hashCode();
+
+		// Assert
+		Assert.assertNotEquals(hashCodeOne, hashCodeTwo);
+	}
+
+	@Test
+	public void hashCode_TwoWordsHaveEqualNodes_ReturnsEqualHashCodes()
+		throws Exception
+	{
+		// Arrange
+		Node nodeOne = new Node(NodeKind.Terminal, "a");
+		Node nodeTwo = new Node(NodeKind.Terminal, "b");
+
+		Word wordOne = new Word(nodeOne, nodeTwo);
+		Word wordTwo = new Word(nodeOne, nodeTwo);
+
+		// Act
+		int hashCodeOne = wordOne.hashCode();
+		int hashCodeTwo = wordTwo.hashCode();
+
+		// Assert
+		Assert.assertEquals(hashCodeOne, hashCodeTwo);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -127,5 +194,4 @@ public class WordTests
 		// Act & Assert
 		this._word = new Word(nodes);
 	}
-
 }
