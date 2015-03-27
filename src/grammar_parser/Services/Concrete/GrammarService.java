@@ -9,6 +9,7 @@ import grammar_parser.Models.Rule;
 import grammar_parser.Models.Word;
 import grammar_parser.Services.Abstract.IGrammarService;
 import grammar_parser.Utils.Guard;
+import grammar_parser.Utils.SetUtils;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -199,6 +200,79 @@ public class GrammarService implements IGrammarService
 		Guard.notNull(grammar, "grammar");
 
 		return this.getNodesFromGrammarByNodeKind(grammar, NodeKind.Terminal);
+	}
+
+	@Override
+	public boolean isLLOneGrammar(Grammar grammar,
+		Map<Node, Set<Word>> firstSetDictionary,
+		Map<Node, Set<Word>> followSetDictionary) throws Exception
+	{
+		Guard.notNull(grammar, "grammar");
+		Guard.notNull(firstSetDictionary, "firstSetDictionary");
+		Guard.notNull(followSetDictionary, "followSetDictionary");
+
+		Map<Node, List<Rule>> rulesDictionary = grammar.getRulesDictionary();
+
+		for (Entry<Node, List<Rule>> entry : rulesDictionary.entrySet())
+		{
+			Node node = entry.getKey();
+			List<Rule> rules = entry.getValue();
+
+			int rulesListSize = rules.size();
+
+			if (rulesListSize >= 2)
+			{
+				Set<Word> followSet = followSetDictionary.get(node);
+
+				if (followSet == null)
+				{
+					throw new NonexistentNodeException(
+						String.format(
+							"Node with text '%1$s' doesn't exist in followSetDictionary as a key.",
+							node.getText()));
+				}
+
+				for (int i = 0; i < rulesListSize; i++)
+				{
+					Rule ruleOne = rules.get(i);
+
+					Set<Word> firstSetOne =
+						this.getFirstSetForNodesList(ruleOne.getNodes(),
+							firstSetDictionary);
+
+					for (int j = 0; j < rulesListSize; j++)
+					{
+						if (j == i)
+						{
+							continue;
+						}
+
+						Rule ruleTwo = rules.get(j);
+
+						Set<Word> firstSetTwo =
+							this.getFirstSetForNodesList(ruleTwo.getNodes(),
+								firstSetDictionary);
+
+						if (!SetUtils.setsDoNotIntersect(firstSetOne,
+							firstSetTwo))
+						{
+							return false;
+						}
+
+						if (firstSetOne.contains(Word.getEmptyWord()))
+						{
+							if (!SetUtils.setsDoNotIntersect(firstSetTwo,
+								followSet))
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 	private List<Rule> getAllRulesFromGrammar(Grammar grammar)

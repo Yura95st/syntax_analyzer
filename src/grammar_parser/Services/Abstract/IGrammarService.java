@@ -84,4 +84,22 @@ public interface IGrammarService
 	 * @return the terminal nodes
 	 */
 	Set<Node> getTerminalNodes(Grammar grammar);
+
+	/**
+	 * Checks if the specified grammar is LL(1)-grammar.
+	 *
+	 * @param grammar
+	 *            the grammar
+	 * @param firstSetDictionary
+	 *            the first set dictionary
+	 * @param followSetDictionary
+	 *            the follow set dictionary
+	 * @return true, if the specified grammar is LL(1)-grammar, false -
+	 *         otherwise
+	 * @throws Exception
+	 *             the exception
+	 */
+	boolean isLLOneGrammar(Grammar grammar,
+		Map<Node, Set<Word>> firstSetDictionary,
+		Map<Node, Set<Word>> followSetDictionary) throws Exception;
 }

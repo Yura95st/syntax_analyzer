@@ -1394,6 +1394,298 @@ public class GrammarServiceTests
 		Assert.assertEquals(testTerminalNodes, terminalNodes);
 	}
 
+	@Test(expected = NonexistentNodeException.class)
+	public void isLLOneGrammar_FirstSetDictionaryDoesNotContainItemForSomeNode_ThrowsNonexistentNodeException()
+		throws Exception
+	{
+		// Arrange - create grammar
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+
+		Rule ruleOne = new Rule(nodeA);
+
+		ruleOne.addNode(nodeB);
+
+		Rule ruleTwo = new Rule(nodeA);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create firstSetDictionary
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Arrange - create followSetDictionary
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		followSetDictionary.put(nodeA, new HashSet<Word>());
+
+		// Act & Assert
+		this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
+			followSetDictionary);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void isLLOneGrammar_FirstSetDictionaryIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act & Assert
+		this._grammarService.isLLOneGrammar(grammar, null, followSetDictionary);
+	}
+
+	@Test(expected = NonexistentNodeException.class)
+	public void isLLOneGrammar_FollowSetDictionaryDoesNotContainItemForSomeNode_ThrowsNonexistentNodeException()
+		throws Exception
+	{
+		// Arrange - create grammar
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+
+		Rule ruleOne = new Rule(nodeA);
+
+		ruleOne.addNode(nodeB);
+
+		Rule ruleTwo = new Rule(nodeA);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create firstSetDictionary
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary.put(nodeB, new HashSet<Word>());
+
+		// Arrange - create followSetDictionary
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act & Assert
+		this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
+			followSetDictionary);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void isLLOneGrammar_FollowSetDictionaryIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act & Assert
+		this._grammarService.isLLOneGrammar(grammar, firstSetDictionary, null);
+	}
+
+	@Test
+	public void isLLOneGrammar_GrammarIsEmpty_ReturnsTrue() throws Exception
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act
+		boolean result =
+			this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
+				followSetDictionary);
+
+		// Assert
+		Assert.assertEquals(true, result);
+	}
+
+	@Test
+	public void isLLOneGrammar_GrammarIsLLOneGrammar_ReturnsTrue()
+		throws Exception
+	{
+		// Arrange - create grammar
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+
+		// A = B .
+		Rule ruleOne = new Rule(nodeA);
+
+		ruleOne.addNode(nodeB);
+
+		// A = C .
+		Rule ruleTwo = new Rule(nodeA);
+
+		ruleTwo.addNode(nodeC);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create firstSetDictionary
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "d"));
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+		firstSetDictionary
+				.put(nodeC, new HashSet<Word>(Arrays.asList(wordOne)));
+
+		// Arrange - create followSetDictionary
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "e"));
+
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		followSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(wordTwo)));
+
+		// Act
+		boolean result =
+			this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
+				followSetDictionary);
+
+		// Assert
+		Assert.assertEquals(true, result);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void isLLOneGrammar_GrammarIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Arrange
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		// Act & Assert
+		this._grammarService.isLLOneGrammar(null, firstSetDictionary,
+			followSetDictionary);
+	}
+
+	@Test
+	public void isLLOneGrammar_IntersectionOfFirstAndFollowSetsIsNotEmpty_ReturnsFalse()
+		throws Exception
+	{
+		// Arrange - create grammar
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+
+		// A = B .
+		Rule ruleOne = new Rule(nodeA);
+
+		ruleOne.addNode(nodeB);
+
+		// A = C .
+		Rule ruleTwo = new Rule(nodeA);
+
+		ruleTwo.addNode(nodeC);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create firstSetDictionary
+		Word commonWord = new Word(new Node(NodeKind.Terminal, "d"));
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord())));
+		firstSetDictionary.put(nodeC,
+			new HashSet<Word>(Arrays.asList(commonWord)));
+
+		// Arrange - create followSetDictionary
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		followSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(commonWord)));
+
+		// Act
+		boolean result =
+			this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
+				followSetDictionary);
+
+		// Assert
+		Assert.assertEquals(false, result);
+	}
+
+	@Test
+	public void isLLOneGrammar_IntersectionOfTwoFirstSetsIsNotEmpty_ReturnsFalse()
+		throws Exception
+	{
+		// Arrange - create grammar
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+
+		// A = B .
+		Rule ruleOne = new Rule(nodeA);
+
+		ruleOne.addNode(nodeB);
+
+		// A = C .
+		Rule ruleTwo = new Rule(nodeA);
+
+		ruleTwo.addNode(nodeC);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create firstSetDictionary
+		Word commonWord = new Word(new Node(NodeKind.Terminal, "d"));
+
+		Map<Node, Set<Word>> firstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		firstSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(commonWord)));
+		firstSetDictionary.put(nodeC,
+			new HashSet<Word>(Arrays.asList(commonWord)));
+
+		// Arrange - create followSetDictionary
+		Map<Node, Set<Word>> followSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
+		followSetDictionary.put(nodeA, new HashSet<Word>());
+
+		// Act
+		boolean result =
+			this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
+				followSetDictionary);
+
+		// Assert
+		Assert.assertEquals(false, result);
+	}
+
 	@Before
 	public void setUp() throws Exception
 	{

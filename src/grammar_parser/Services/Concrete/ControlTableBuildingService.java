@@ -46,7 +46,7 @@ public class ControlTableBuildingService implements
 			Map<Node, Set<Word>> followSetDictionary =
 				this._grammarService.getFollowSetDictionary(grammar);
 
-			if (!this.isLLOneGrammar(grammar, firstSetDictionary,
+			if (!this._grammarService.isLLOneGrammar(grammar, firstSetDictionary,
 				followSetDictionary))
 			{
 				throw new GrammarIsNotLLOneGrammarException(
@@ -55,62 +55,5 @@ public class ControlTableBuildingService implements
 		}
 
 		return controlTable;
-	}
-
-	private boolean isLLOneGrammar(Grammar grammar,
-		Map<Node, Set<Word>> firstSetDictionary,
-		Map<Node, Set<Word>> followSetDictionary) throws Exception
-	{
-		Map<Node, List<Rule>> rulesDictionary = grammar.getRulesDictionary();
-
-		for (Entry<Node, List<Rule>> entry : rulesDictionary.entrySet())
-		{
-			List<Rule> rules = entry.getValue();
-
-			int rulesListSize = rules.size();
-
-			if (rulesListSize >= 2)
-			{
-				Set<Word> followSet = followSetDictionary.get(entry.getKey());
-
-				for (int i = 0; i < rulesListSize; i++)
-				{
-					Rule ruleOne = rules.get(i);
-
-					Set<Word> firstSetOne =
-						this._grammarService.getFirstSetForNodesList(
-							ruleOne.getNodes(), firstSetDictionary);
-
-					for (int j = 0; j < rulesListSize; j++)
-					{
-						if (j == i)
-						{
-							continue;
-						}
-
-						Rule ruleTwo = rules.get(j);
-
-						Set<Word> firstSetTwo =
-							this._grammarService.getFirstSetForNodesList(
-								ruleTwo.getNodes(), firstSetDictionary);
-
-						if (!SetUtils.setsDoNotIntersect(firstSetOne, firstSetTwo))
-						{
-							return false;
-						}
-
-						if (firstSetOne.contains(Word.getEmptyWord()))
-						{
-							if (!SetUtils.setsDoNotIntersect(firstSetTwo, followSet))
-							{
-								return false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return true;
 	}
 }

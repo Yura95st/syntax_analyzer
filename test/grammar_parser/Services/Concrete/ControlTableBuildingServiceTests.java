@@ -19,11 +19,14 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class ControlTableBuildingServiceTests
 {
 	private Map<Node, Set<Word>> _firstSetDictionary;
+
+	private HashMap<Node, Set<Word>> _followSetDictionary;
 
 	private Grammar _grammar;
 
@@ -49,89 +52,27 @@ public class ControlTableBuildingServiceTests
 
 		// Assert
 		Assert.assertEquals(0, controlTable.size());
+
+		Mockito.verify(this._mockedGrammarService, Mockito.never())
+				.getFirstSetDictionary(this._grammar);
+
+		Mockito.verify(this._mockedGrammarService, Mockito.never())
+				.getFollowSetDictionary(this._grammar);
 	}
 
 	@Test
-	public void buildControlTable_GrammarIsNotLLOneGrammarCaseOne_ThrowsGrammarIsNotLLOneGrammarException()
+	public void buildControlTable_GrammarIsNotLLOneGrammar_ThrowsGrammarIsNotLLOneGrammarException()
 		throws Exception
 	{
 		// Arrange - mock grammarService
-		Set<Word> firstSet =
-			new HashSet<Word>(Arrays.asList(Word.getEmptyWord()));
-
 		Mockito.when(
-			this._mockedGrammarService.getFirstSetForNodesList(
-				this._ruleOne.getNodes(), this._firstSetDictionary)).thenReturn(
-			firstSet);
-
-		Mockito.when(
-			this._mockedGrammarService.getFirstSetForNodesList(
-				this._ruleTwo.getNodes(), this._firstSetDictionary)).thenReturn(
-			firstSet);
+			this._mockedGrammarService.isLLOneGrammar(this._grammar,
+				this._firstSetDictionary, this._followSetDictionary))
+				.thenReturn(false);
 
 		// Arrange - create target
 		IControlTableBuildingService target =
-			new ControlTableBuildingService(this._mockedGrammarService);
-
-		boolean exceptionIsThrown = false;
-
-		// Act
-		try
-		{
-			target.buildControlTable(this._grammar);
-		}
-		catch (GrammarIsNotLLOneGrammarException e)
-		{
-			exceptionIsThrown = true;
-		}
-
-		// Assert
-		Assert.assertEquals(true, exceptionIsThrown);
-
-		Mockito.verify(this._mockedGrammarService).getFirstSetDictionary(
-			this._grammar);
-
-		Mockito.verify(this._mockedGrammarService).getFirstSetForNodesList(
-			this._ruleOne.getNodes(), this._firstSetDictionary);
-
-		Mockito.verify(this._mockedGrammarService).getFirstSetForNodesList(
-			this._ruleTwo.getNodes(), this._firstSetDictionary);
-	}
-
-	@Test
-	public void buildControlTable_GrammarIsNotLLOneGrammarCaseTwo_ThrowsGrammarIsNotLLOneGrammarException()
-		throws Exception
-	{
-		// Arrange - mock grammarService
-		Set<Word> firstSetOne =
-			new HashSet<Word>(Arrays.asList(Word.getEmptyWord()));
-
-		Set<Word> firstSetTwo =
-			new HashSet<Word>(Arrays.asList(new Word(new Node(
-				NodeKind.Terminal, "a"))));
-
-		Mockito.when(
-			this._mockedGrammarService.getFirstSetForNodesList(
-				this._ruleOne.getNodes(), this._firstSetDictionary)).thenReturn(
-			firstSetOne);
-
-		Mockito.when(
-			this._mockedGrammarService.getFirstSetForNodesList(
-				this._ruleTwo.getNodes(), this._firstSetDictionary)).thenReturn(
-			firstSetTwo);
-
-		Map<Node, Set<Word>> followSetDictionary =
-			new HashMap<Node, Set<Word>>();
-
-		followSetDictionary.put(this._ruleOne.getHeadNode(), firstSetTwo);
-
-		Mockito.when(
-			this._mockedGrammarService.getFollowSetDictionary(this._grammar))
-				.thenReturn(followSetDictionary);
-
-		// Arrange - create target
-		IControlTableBuildingService target =
-			new ControlTableBuildingService(this._mockedGrammarService);
+				new ControlTableBuildingService(this._mockedGrammarService);
 
 		boolean exceptionIsThrown = false;
 
@@ -154,11 +95,11 @@ public class ControlTableBuildingServiceTests
 		Mockito.verify(this._mockedGrammarService).getFollowSetDictionary(
 			this._grammar);
 
-		Mockito.verify(this._mockedGrammarService).getFirstSetForNodesList(
-			this._ruleOne.getNodes(), this._firstSetDictionary);
+		Mockito.verify(this._mockedGrammarService).isLLOneGrammar(
+			this._grammar, this._firstSetDictionary, this._followSetDictionary);
 
-		Mockito.verify(this._mockedGrammarService).getFirstSetForNodesList(
-			this._ruleTwo.getNodes(), this._firstSetDictionary);
+		Mockito.verify(this._mockedGrammarService, Mockito.never())
+				.getFirstPlusFollowSet(Matchers.anySet(), Matchers.anySet());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -196,8 +137,8 @@ public class ControlTableBuildingServiceTests
 	private void initRules()
 	{
 		Node nodeA = new Node(NodeKind.Nonterminal, "A");
-		Node nodeB = new Node(NodeKind.Nonterminal, "B");
-		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+		Node nodeB = new Node(NodeKind.Terminal, "b");
+		Node nodeC = new Node(NodeKind.Terminal, "c");
 
 		this._ruleOne = new Rule(nodeA);
 
@@ -213,9 +154,19 @@ public class ControlTableBuildingServiceTests
 		this._mockedGrammarService = Mockito.mock(IGrammarService.class);
 
 		this._firstSetDictionary = new HashMap<Node, Set<Word>>();
+		this._followSetDictionary = new HashMap<Node, Set<Word>>();
 
 		Mockito.when(
 			this._mockedGrammarService.getFirstSetDictionary(this._grammar))
 				.thenReturn(this._firstSetDictionary);
+
+		Mockito.when(
+			this._mockedGrammarService.getFollowSetDictionary(this._grammar))
+				.thenReturn(this._followSetDictionary);
+
+		Mockito.when(
+			this._mockedGrammarService.isLLOneGrammar(this._grammar,
+				this._firstSetDictionary, this._followSetDictionary))
+				.thenReturn(true);
 	}
 }
