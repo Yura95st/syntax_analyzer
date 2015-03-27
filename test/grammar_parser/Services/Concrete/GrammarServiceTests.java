@@ -25,6 +25,55 @@ public class GrammarServiceTests
 	IGrammarService _grammarService;
 
 	@Test
+	public void getAllRulesFromGrammar_GrammarIsEmpty_ReturnsEmptyList()
+		throws Exception
+	{
+		// Arrange
+		Grammar grammar = new Grammar();
+
+		// Act
+		List<Rule> rules = this._grammarService.getAllRulesFromGrammar(grammar);
+
+		// Assert
+		Assert.assertEquals(0, rules.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getAllRulesFromGrammar_GrammarIsNull_ThrowsIllegalArgumentException()
+		throws Exception
+	{
+		// Act & Assert
+		this._grammarService.getAllRulesFromGrammar(null);
+	}
+
+	@Test
+	public void getAllRulesFromGrammar_GrammarIsValid_ReturnsRulesList()
+		throws Exception
+	{
+		// Arrange
+		Rule ruleOne = new Rule(new Node(NodeKind.Nonterminal, "A"));
+		Rule ruleTwo = new Rule(new Node(NodeKind.Nonterminal, "B"));
+
+		Set<Rule> testRules =
+			new HashSet<Rule>(Arrays.asList(ruleOne, ruleTwo));
+
+		Grammar grammar = new Grammar();
+
+		for (Rule rule : testRules)
+		{
+			grammar.addRule(rule);
+		}
+
+		grammar.setHeadRule(ruleOne);
+
+		// Act
+		List<Rule> rules = this._grammarService.getAllRulesFromGrammar(grammar);
+
+		// Assert
+		Assert.assertEquals(testRules, new HashSet<Rule>(rules));
+	}
+
+	@Test
 	public void getFirstPlusFollowSet_FirstSetContainsEmptySet_ReturnsTheUnionOfFirstAndFollowSets()
 		throws Exception
 	{

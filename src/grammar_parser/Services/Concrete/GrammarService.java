@@ -24,6 +24,24 @@ import java.util.Stack;
 public class GrammarService implements IGrammarService
 {
 	@Override
+	public List<Rule> getAllRulesFromGrammar(Grammar grammar)
+	{
+		Guard.notNull(grammar, "grammar");
+
+		List<Rule> rulesList = new ArrayList<Rule>();
+
+		for (List<Rule> rules : grammar.getRulesDictionary().values())
+		{
+			for (Rule rule : rules)
+			{
+				rulesList.add(rule);
+			}
+		}
+
+		return rulesList;
+	}
+
+	@Override
 	public Set<Word> getFirstPlusFollowSet(Set<Word> firstSet,
 		Set<Word> followSet)
 	{
@@ -273,21 +291,6 @@ public class GrammarService implements IGrammarService
 		}
 
 		return true;
-	}
-
-	private List<Rule> getAllRulesFromGrammar(Grammar grammar)
-	{
-		List<Rule> rulesList = new ArrayList<Rule>();
-
-		for (List<Rule> rules : grammar.getRulesDictionary().values())
-		{
-			for (Rule rule : rules)
-			{
-				rulesList.add(rule);
-			}
-		}
-
-		return rulesList;
 	}
 
 	private Entry<Rule, List<Node>> getEntryFromRule(Rule rule)

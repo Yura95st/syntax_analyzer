@@ -12,6 +12,15 @@ import java.util.Set;
 public interface IGrammarService
 {
 	/**
+	 * Gets all rules from the specified grammar.
+	 *
+	 * @param grammar
+	 *            the grammar
+	 * @return the list of all rules from grammar
+	 */
+	List<Rule> getAllRulesFromGrammar(Grammar grammar);
+
+	/**
 	 * Gets the first plus follow set.
 	 *
 	 * @param firstSet
