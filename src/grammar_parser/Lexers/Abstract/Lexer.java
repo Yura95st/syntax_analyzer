@@ -32,7 +32,7 @@ public abstract class Lexer<T>
 		return this._source;
 	}
 
-	public List<Character> getSpaceCharacters()
+	public Iterable<Character> getSpaceCharacters()
 	{
 		return this._spaceCharacters;
 	}
@@ -46,11 +46,16 @@ public abstract class Lexer<T>
 		this._offset = 0;
 	}
 
-	public void setSpaceCharacters(List<Character> spaceCharacters)
+	public void setSpaceCharacters(Iterable<Character> spaceCharacters)
 	{
 		Guard.notNull(spaceCharacters, "spaceCharacters");
 
-		this._spaceCharacters = new ArrayList<Character>(spaceCharacters);
+		this._spaceCharacters = new ArrayList<Character>();
+
+		for (Character spaceCharacter : spaceCharacters)
+		{
+			this._spaceCharacters.add(spaceCharacter);
+		}
 	}
 
 	protected boolean isInBounds()
@@ -61,8 +66,8 @@ public abstract class Lexer<T>
 	protected void skipSpaces()
 	{
 		while (this.isInBounds()
-				&& this._spaceCharacters
-				.contains(this._source.charAt(this._offset)))
+			&& this._spaceCharacters
+					.contains(this._source.charAt(this._offset)))
 		{
 			this._offset++;
 		}

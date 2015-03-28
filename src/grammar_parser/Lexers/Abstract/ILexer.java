@@ -16,7 +16,7 @@ public interface ILexer<T>
 	 *
 	 * @return the space characters
 	 */
-	List<Character> getSpaceCharacters();
+	Iterable<Character> getSpaceCharacters();
 
 	/**
 	 * Parses the source.
@@ -39,5 +39,5 @@ public interface ILexer<T>
 	 * @param spaceCharacters
 	 *            the new space characters
 	 */
-	void setSpaceCharacters(List<Character> spaceCharacters);
+	void setSpaceCharacters(Iterable<Character> spaceCharacters);
 }

@@ -33,7 +33,7 @@ public class GrammarLexer extends Lexer<Node> implements IGrammarLexer
 	}
 
 	@Override
-	public List<NodeDefinition> getNodeDefinitions()
+	public Iterable<NodeDefinition> getNodeDefinitions()
 	{
 		return this._nodeDefinitions;
 	}
@@ -59,7 +59,7 @@ public class GrammarLexer extends Lexer<Node> implements IGrammarLexer
 			if (node == null)
 			{
 				String nodeValue =
-					this._source.substring(this._offset, this._offset + 1);
+						this._source.substring(this._offset, this._offset + 1);
 
 				node = new Node(NodeKind.Unknown, nodeValue);
 
@@ -73,11 +73,16 @@ public class GrammarLexer extends Lexer<Node> implements IGrammarLexer
 	}
 
 	@Override
-	public void setNodeDefinitions(List<NodeDefinition> nodeDefinitions)
+	public void setNodeDefinitions(Iterable<NodeDefinition> nodeDefinitions)
 	{
 		Guard.notNull(nodeDefinitions, "nodeDefinitions");
 
-		this._nodeDefinitions = new ArrayList<NodeDefinition>(nodeDefinitions);
+		this._nodeDefinitions = new ArrayList<NodeDefinition>();
+
+		for (NodeDefinition nodeDefinition : nodeDefinitions)
+		{
+			this._nodeDefinitions.add(nodeDefinition);
+		}
 	}
 
 	private Node processNode()
@@ -89,7 +94,7 @@ public class GrammarLexer extends Lexer<Node> implements IGrammarLexer
 			String matchString = this._source.substring(this._offset);
 
 			Matcher matcher =
-				definition.getRepresentation().matcher(matchString);
+					definition.getRepresentation().matcher(matchString);
 
 			if (!matcher.lookingAt())
 			{
@@ -111,7 +116,7 @@ public class GrammarLexer extends Lexer<Node> implements IGrammarLexer
 		}
 
 		Node longestNode =
-			Collections.max(foundNodes, (n1, n2) -> Integer.compare(n1
+				Collections.max(foundNodes, (n1, n2) -> Integer.compare(n1
 					.getText().length(), n2.getText().length()));
 
 		this._offset += longestNode.getText().length();

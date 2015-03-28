@@ -1,7 +1,5 @@
 package grammar_parser.Lexers.Abstract;
 
-import java.util.List;
-
 import grammar_parser.Models.Node;
 import grammar_parser.Models.NodeDefinition;
 
@@ -12,7 +10,7 @@ public interface IGrammarLexer extends ILexer<Node>
 	 *
 	 * @return the node definitions
 	 */
-	List<NodeDefinition> getNodeDefinitions();
+	Iterable<NodeDefinition> getNodeDefinitions();
 
 	/**
 	 * Sets the node definitions.
@@ -20,5 +18,5 @@ public interface IGrammarLexer extends ILexer<Node>
 	 * @param nodeDefinitions
 	 *            the new node definitions
 	 */
-	void setNodeDefinitions(List<NodeDefinition> nodeDefinitions);
+	void setNodeDefinitions(Iterable<NodeDefinition> nodeDefinitions);
 }
