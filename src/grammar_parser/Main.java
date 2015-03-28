@@ -15,6 +15,7 @@ import grammar_parser.Services.Abstract.IGrammarService;
 import grammar_parser.Services.Concrete.ControlTableBuildingService;
 import grammar_parser.Services.Concrete.GrammarService;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,21 +41,8 @@ public class Main
 		{
 			Main.init();
 
-			// Read all lines from file.
-			Path path = Paths.get(args[0]);
-
-			List<String> lines =
-				Files.readAllLines(path, StandardCharsets.UTF_8);
-
-			StringBuilder stringBuilder = new StringBuilder();
-
-			for (String line : lines)
-			{
-				stringBuilder.append(line);
-				stringBuilder.append(System.getProperty("line.separator"));
-			}
-
-			String source = stringBuilder.toString().trim();
+			// Read all lines from grammar file.
+			String source = Main.readAllLinesFromFile(args[0]);
 
 			// Parse the list of nodes from the source.
 			Main._grammarLexer.setSource(source);
@@ -228,6 +216,26 @@ public class Main
 		{
 			System.out.println(Main.ruleToString(rule));
 		}
+	}
+
+	private static String readAllLinesFromFile(String filePath)
+		throws IOException
+	{
+		Path path = Paths.get(filePath);
+
+		List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+		StringBuilder stringBuilder = new StringBuilder();
+
+		for (String line : lines)
+		{
+			stringBuilder.append(line);
+			stringBuilder.append(System.getProperty("line.separator"));
+		}
+
+		String source = stringBuilder.toString().trim();
+
+		return source;
 	}
 
 	private static String ruleToString(Rule rule)
