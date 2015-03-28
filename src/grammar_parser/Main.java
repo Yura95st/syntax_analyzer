@@ -4,15 +4,19 @@ import grammar_parser.Enums.SpecialNodeKind;
 import grammar_parser.Helpers.ExceptionHelper;
 import grammar_parser.Lexers.Abstract.IGrammarLexer;
 import grammar_parser.Lexers.Concrete.GrammarLexer;
+import grammar_parser.Models.ControlTableItem;
 import grammar_parser.Models.Grammar;
 import grammar_parser.Models.Node;
 import grammar_parser.Models.Rule;
 import grammar_parser.Models.Word;
 import grammar_parser.Parsers.Abstract.IGrammarParser;
 import grammar_parser.Parsers.Concrete.GrammarParser;
+import grammar_parser.Services.Abstract.IControlTableBuildingService;
 import grammar_parser.Services.Abstract.IGrammarService;
+import grammar_parser.Services.Concrete.ControlTableBuildingService;
 import grammar_parser.Services.Concrete.GrammarService;
 
+import java.io.Console;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,10 +28,21 @@ import java.util.Set;
 
 public class Main
 {
+	private static IControlTableBuildingService _controlTableBuildingService;
+
+	private static IGrammarLexer _grammarLexer;
+
+	private static IGrammarParser _grammarParser;
+
+	private static IGrammarService _grammarService;
+
 	public static void main(String[] args)
 	{
 		try
 		{
+			Main.init();
+
+			// Read all lines from file.
 			Path path = Paths.get(args[0]);
 
 			List<String> lines =
@@ -43,132 +58,64 @@ public class Main
 
 			String source = stringBuilder.toString().trim();
 
-			IGrammarLexer grammarLexer = new GrammarLexer();
+			// Parse the list of nodes from the source.
+			Main._grammarLexer.setSource(source);
 
-			grammarLexer.setSource(source);
+			List<Node> nodes = Main._grammarLexer.parse();
 
-			List<Node> nodes = grammarLexer.parse();
+			Main.printNodes(nodes);
 
-			System.out.println(String.format("----- Nodes: -----%1$s",
-				System.getProperty("line.separator")));
+			// Parse the grammar from the list of nodes.
+			Main._grammarParser.setNodes(nodes);
 
-			for (Node node : nodes)
-			{
-				System.out.println(Main.nodeToString(node));
-			}
+			Grammar grammar = Main._grammarParser.parse();
 
-			IGrammarParser grammarParser = new GrammarParser();
+			Main.printGrammar(grammar);
 
-			grammarParser.setNodes(nodes);
-
-			Grammar grammar = grammarParser.parse();
-
-			System.out.println(String.format("%1$s----- Grammar: -----%1$s",
-				System.getProperty("line.separator")));
-
-			Map<SpecialNodeKind, Node> specialNodesDictionary =
-				grammarParser.getSpecialNodesDictionary();
-
-			for (List<Rule> rules : grammar.getRulesDictionary().values())
-			{
-				for (Rule rule : rules)
-				{
-					System.out.println(Main.ruleToString(rule,
-						specialNodesDictionary));
-				}
-			}
-
-			IGrammarService grammarService = new GrammarService();
-
-			System.out.println(String.format(
-				"%1$s----- RightRecursive rules: -----%1$s",
-				System.getProperty("line.separator")));
-
+			// Get the rightRecursiveRules.
 			Set<Rule> rightRecursiveRules =
-				grammarService.getRightRecursiveRules(grammar);
+				Main._grammarService.getRightRecursiveRules(grammar);
 
-			if (rightRecursiveRules.size() == 0)
-			{
-				System.out
-						.println("Grammar doesn't contain any rightRecursive rule.");
-			}
-			else
-			{
-				for (Rule rule : rightRecursiveRules)
-				{
-					System.out.println(Main.ruleToString(rule,
-						specialNodesDictionary));
-				}
-			}
+			Main.printRightRecursiveRules(rightRecursiveRules);
 
-			System.out.println(String.format("%1$s----- FIRST: -----%1$s",
-				System.getProperty("line.separator")));
-
+			// Get the firstSetDictionary.
 			Map<Node, Set<Word>> firstSetDictionary =
-				grammarService.getFirstSetDictionary(grammar);
+				Main._grammarService.getFirstSetDictionary(grammar);
 
-			for (Entry<Node, Set<Word>> entry : firstSetDictionary.entrySet())
-			{
-				System.out.print(String.format("First(%1$s) = { ",
-					entry.getKey().getText()));
+			Main.printFirstSetDictionary(firstSetDictionary);
 
-				boolean isFirstWord = true;
+			// Get the followSetDictionary.
+			Map<Node, Set<Word>> followSetDictionary =
+				Main._grammarService.getFollowSetDictionary(grammar);
 
-				for (Word word : entry.getValue())
-				{
-					if (!isFirstWord)
-					{
-						System.out.print(", ");
-					}
-					else
-					{
-						isFirstWord = false;
-					}
+			Main.printFollowSetDictionary(followSetDictionary);
 
-					System.out.print(Main.wordToString(word));
-				}
+			// Get the controlTable.
+			Map<ControlTableItem, Rule> controlTable =
+				Main._controlTableBuildingService.buildControlTable(grammar);
 
-				System.out.println(" }");
-			}
-
-			System.out.println(String.format("%1$s----- FOLLOW: -----%1$s",
-				System.getProperty("line.separator")));
-
-			Map<Node, Set<Word>> followSetDictionary = grammarService.getFollowSetDictionary(grammar);
-
-			for (Entry<Node, Set<Word>> entry : followSetDictionary.entrySet())
-			{
-				System.out.print(String.format("Follow(%1$s) = { ",
-					entry.getKey().getText()));
-
-				boolean isFirstWord = true;
-
-				for (Word word : entry.getValue())
-				{
-					if (!isFirstWord)
-					{
-						System.out.print(", ");
-					}
-					else
-					{
-						isFirstWord = false;
-					}
-
-					System.out.print(Main.wordToString(word));
-				}
-
-				System.out.println(" }");
-			}
+			Main.printControlTable(controlTable);
 		}
 		catch (Exception exception)
 		{
-			System.out.println("Error occured:");
-			System.out.println(ExceptionHelper
-					.getFullExceptionMessage(exception));
+			System.err.println("Error occured:");
+			System.err.println(exception);
 		}
 	}
 
-	static String nodeToString(Node node)
+	private static void init() throws Exception
+	{
+		Main._grammarLexer = new GrammarLexer();
+
+		Main._grammarParser = new GrammarParser();
+
+		Main._grammarService = new GrammarService();
+
+		Main._controlTableBuildingService =
+			new ControlTableBuildingService(Main._grammarService);
+	}
+
+	private static String nodeToString(Node node)
 	{
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -180,9 +127,116 @@ public class Main
 		return resultString;
 	}
 
-	static String ruleToString(Rule rule,
-		Map<SpecialNodeKind, Node> specialNodesDictionary)
+	private static void printControlTable(
+		Map<ControlTableItem, Rule> controlTable)
 	{
+		System.out.println(String.format("%1$s----- Table: -----%1$s",
+			System.getProperty("line.separator")));
+
+		for (Entry<ControlTableItem, Rule> entry : controlTable.entrySet())
+		{
+			ControlTableItem controlTableItem = entry.getKey();
+			Rule rule = entry.getValue();
+
+			Word word = controlTableItem.getWord();
+
+			System.out.println(String.format("(%1$s, %2$s) -> %3$s",
+				controlTableItem.getNode().getText(), Main.wordToString(word),
+				Main.ruleToString(rule)));
+		}
+	}
+
+	private static void printFirstOrFollowSetDictionary(
+		Map<Node, Set<Word>> firstOrFollowSetDictionary, boolean isFirstSet)
+	{
+		System.out.println(String.format("%1$s----- %2$s: -----%1$s", System
+				.getProperty("line.separator"), (isFirstSet ? "FIRST"
+			: "FOLLOW")));
+
+		for (Entry<Node, Set<Word>> entry : firstOrFollowSetDictionary
+				.entrySet())
+		{
+			System.out.print(String.format("%1$s(%2$s) = { ",
+				(isFirstSet ? "First" : "Follow"), entry.getKey().getText()));
+
+			boolean isFirstWord = true;
+
+			for (Word word : entry.getValue())
+			{
+				if (!isFirstWord)
+				{
+					System.out.print(", ");
+				}
+				else
+				{
+					isFirstWord = false;
+				}
+
+				System.out.print(Main.wordToString(word));
+			}
+
+			System.out.println(" }");
+		}
+	}
+
+	private static void printFirstSetDictionary(
+		Map<Node, Set<Word>> firstSetDictionary)
+	{
+		Main.printFirstOrFollowSetDictionary(firstSetDictionary, true);
+	}
+
+	private static void printFollowSetDictionary(
+		Map<Node, Set<Word>> followSetDictionary)
+	{
+		Main.printFirstOrFollowSetDictionary(followSetDictionary, false);
+	}
+
+	private static void printGrammar(Grammar grammar)
+	{
+		System.out.println(String.format("%1$s----- Grammar: -----%1$s",
+			System.getProperty("line.separator")));
+
+		for (Rule rule : Main._grammarService.getAllRulesFromGrammar(grammar))
+		{
+			System.out.println(Main.ruleToString(rule));
+		}
+	}
+
+	private static void printNodes(List<Node> nodes)
+	{
+		System.out.println(String.format("----- Nodes: -----%1$s",
+			System.getProperty("line.separator")));
+
+		for (Node node : nodes)
+		{
+			System.out.println(Main.nodeToString(node));
+		}
+	}
+
+	private static void printRightRecursiveRules(Set<Rule> rightRecursiveRules)
+	{
+		System.out.println(String.format(
+			"%1$s----- RightRecursive rules: -----%1$s",
+			System.getProperty("line.separator")));
+
+		if (rightRecursiveRules.size() == 0)
+		{
+			System.out
+					.println("Grammar doesn't contain any rightRecursive rule.");
+			return;
+		}
+
+		for (Rule rule : rightRecursiveRules)
+		{
+			System.out.println(Main.ruleToString(rule));
+		}
+	}
+
+	private static String ruleToString(Rule rule)
+	{
+		Map<SpecialNodeKind, Node> specialNodesDictionary =
+			Main._grammarParser.getSpecialNodesDictionary();
+
 		StringBuilder stringBuilder = new StringBuilder();
 
 		stringBuilder.append(rule.getHeadNode().getText());
@@ -217,7 +271,7 @@ public class Main
 		return resultString;
 	}
 
-	static String wordToString(Word word)
+	private static String wordToString(Word word)
 	{
 		StringBuilder stringBuilder = new StringBuilder();
 
