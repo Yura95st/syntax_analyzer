@@ -1,7 +1,6 @@
 package grammar_parser;
 
 import grammar_parser.Enums.SpecialNodeKind;
-import grammar_parser.Helpers.ExceptionHelper;
 import grammar_parser.Lexers.Abstract.IGrammarLexer;
 import grammar_parser.Lexers.Concrete.GrammarLexer;
 import grammar_parser.Models.ControlTableItem;
@@ -16,7 +15,6 @@ import grammar_parser.Services.Abstract.IGrammarService;
 import grammar_parser.Services.Concrete.ControlTableBuildingService;
 import grammar_parser.Services.Concrete.GrammarService;
 
-import java.io.Console;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
