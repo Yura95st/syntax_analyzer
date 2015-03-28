@@ -11,7 +11,7 @@ public class Token
 
 	private final String value;
 
-	public Token(String value, TokenKind kind, Location location)
+	public Token(TokenKind kind, String value, Location location)
 	{
 		Guard.notNull(value, "value");
 		Guard.notNull(kind, "kind");
