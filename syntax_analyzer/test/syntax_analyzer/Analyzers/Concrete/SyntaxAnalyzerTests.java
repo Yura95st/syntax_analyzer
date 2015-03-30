@@ -197,11 +197,9 @@ public class SyntaxAnalyzerTests
 				.thenReturn(controlTable);
 
 		// Arrange - create tokens
-		List<Token> tokens =
-			Arrays.asList(new Token[] {
-				new Token(TokenKind.Identifier, nodeA.getText(), new Location(
-					0, 1))
-			});
+		List<Token> tokens = Arrays.asList(new Token[] {
+			new Token(TokenKind.Keyword, nodeA.getText(), new Location(0, 1))
+		});
 
 		// Arrange - create target
 		ISyntaxAnalyzer target =
@@ -262,10 +260,10 @@ public class SyntaxAnalyzerTests
 		// Arrange - create tokens
 		List<Token> tokens =
 			Arrays.asList(new Token[] {
-				new Token(TokenKind.Identifier, nodeC.getText(), new Location(
-					0, 1)),
-				new Token(TokenKind.Identifier, nodeB.getText(), new Location(
-					1, 1))
+				new Token(TokenKind.Keyword, nodeC.getText(),
+					new Location(0, 1)),
+				new Token(TokenKind.Keyword, nodeB.getText(),
+					new Location(1, 1))
 			});
 
 		// Arrange - create target
@@ -343,31 +341,22 @@ public class SyntaxAnalyzerTests
 		List<List<Token>> tokensList = new ArrayList<List<Token>>();
 
 		// Tokens: c
-		tokensList
-				.add(Arrays.asList(new Token[] {
-					new Token(TokenKind.Identifier, nodeC.getText(),
-						new Location(0, 1))
-				}));
+		tokensList.add(Arrays.asList(new Token[] {
+			new Token(TokenKind.Keyword, nodeC.getText(), new Location(0, 1))
+		}));
 
 		// Tokens: b, c
-		tokensList
-				.add(Arrays.asList(new Token[] {
-					new Token(TokenKind.Identifier, nodeB.getText(),
-						new Location(0, 1)),
-					new Token(TokenKind.Identifier, nodeC.getText(),
-						new Location(1, 1))
-				}));
+		tokensList.add(Arrays.asList(new Token[] {
+			new Token(TokenKind.Keyword, nodeB.getText(), new Location(0, 1)),
+			new Token(TokenKind.Keyword, nodeC.getText(), new Location(1, 1))
+		}));
 
 		// Tokens: b, b, c
-		tokensList
-				.add(Arrays.asList(new Token[] {
-					new Token(TokenKind.Identifier, nodeB.getText(),
-						new Location(0, 1)),
-					new Token(TokenKind.Identifier, nodeB.getText(),
-						new Location(1, 1)),
-					new Token(TokenKind.Identifier, nodeC.getText(),
-						new Location(2, 1))
-				}));
+		tokensList.add(Arrays.asList(new Token[] {
+			new Token(TokenKind.Keyword, nodeB.getText(), new Location(0, 1)),
+			new Token(TokenKind.Keyword, nodeB.getText(), new Location(1, 1)),
+			new Token(TokenKind.Keyword, nodeC.getText(), new Location(2, 1))
+		}));
 
 		int numberOfInvocations = 0;
 
@@ -446,20 +435,15 @@ public class SyntaxAnalyzerTests
 		List<List<Token>> tokensList = new ArrayList<List<Token>>();
 
 		// Tokens: b
-		tokensList
-				.add(Arrays.asList(new Token[] {
-					new Token(TokenKind.Identifier, nodeB.getText(),
-						new Location(0, 1)),
-				}));
+		tokensList.add(Arrays.asList(new Token[] {
+			new Token(TokenKind.Keyword, nodeB.getText(), new Location(0, 1)),
+		}));
 
 		// Tokens: c, b
-		tokensList
-				.add(Arrays.asList(new Token[] {
-					new Token(TokenKind.Identifier, nodeC.getText(),
-						new Location(0, 1)),
-					new Token(TokenKind.Identifier, nodeB.getText(),
-						new Location(1, 1))
-				}));
+		tokensList.add(Arrays.asList(new Token[] {
+			new Token(TokenKind.Keyword, nodeC.getText(), new Location(0, 1)),
+			new Token(TokenKind.Keyword, nodeB.getText(), new Location(1, 1))
+		}));
 
 		int numberOfInvocations = 0;
 
@@ -479,6 +463,127 @@ public class SyntaxAnalyzerTests
 			Mockito.verify(this._controlTableBuildingServiceMock,
 				Mockito.times(numberOfInvocations)).buildControlTable(grammar);
 		}
+	}
+
+	@Test
+	public void run_SyntaxWithSpecialNodes_ReturnsResultIsValid()
+		throws Exception
+	{
+		// Arrange - create Grammar
+		Node nodeS = new Node(NodeKind.Nonterminal, "S");
+		Node nodeOne = new Node(NodeKind.Terminal, "identifier");
+		Node nodeTwo = new Node(NodeKind.Terminal, ":=");
+		Node nodeThree = new Node(NodeKind.Terminal, "number");
+		Node nodeFour = new Node(NodeKind.Terminal, ";");
+
+		Rule ruleOne = new Rule(nodeS);
+
+		// S = "identifier", ":=", "number", ";".
+		ruleOne.addNode(nodeOne);
+		ruleOne.addNode(nodeTwo);
+		ruleOne.addNode(nodeThree);
+		ruleOne.addNode(nodeFour);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - mock controlTableBuildingService
+		Map<ControlTableItem, Rule> controlTable =
+			new HashMap<ControlTableItem, Rule>();
+
+		controlTable.put(new ControlTableItem(nodeS, new Word(nodeOne)),
+			ruleOne);
+
+		Mockito.when(
+			this._controlTableBuildingServiceMock.buildControlTable(grammar))
+				.thenReturn(controlTable);
+
+		// Arrange - create target
+		ISyntaxAnalyzer target =
+			new SyntaxAnalyzer(this._controlTableBuildingServiceMock);
+
+		target.setGrammar(grammar);
+
+		// Arrange - create tokens
+		List<Token> tokens =
+			Arrays.asList(new Token[] {
+				new Token(TokenKind.Identifier, "x", new Location(0, 1)),
+				new Token(TokenKind.Operator, ":=", new Location(1, 2)),
+				new Token(TokenKind.Number, "2", new Location(3, 1)),
+				new Token(TokenKind.Punctuator, ";", new Location(4, 1))
+			});
+
+		target.setTokens(tokens);
+
+		// Act
+		SyntaxAnalyzerResult result = target.run();
+
+		// Assert
+		Assert.assertEquals(true, result.isSyntaxValid());
+		Assert.assertEquals(null, result.getWrongToken());
+
+		Mockito.verify(this._controlTableBuildingServiceMock)
+				.buildControlTable(grammar);
+	}
+
+	@Test
+	public void run_SyntaxWithSpecialNodesIsInvalid_ReturnsResultIsInvalid()
+		throws Exception
+	{
+		// Arrange - create Grammar
+		Node nodeS = new Node(NodeKind.Nonterminal, "S");
+		Node nodeOne = new Node(NodeKind.Terminal, "identifier");
+		Node nodeTwo = new Node(NodeKind.Terminal, "number");
+
+		Rule ruleOne = new Rule(nodeS);
+
+		// S = "identifier", "number" .
+		ruleOne.addNode(nodeOne);
+		ruleOne.addNode(nodeTwo);
+
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - mock controlTableBuildingService
+		Map<ControlTableItem, Rule> controlTable =
+			new HashMap<ControlTableItem, Rule>();
+
+		controlTable.put(new ControlTableItem(nodeS, new Word(nodeOne)),
+			ruleOne);
+
+		Mockito.when(
+			this._controlTableBuildingServiceMock.buildControlTable(grammar))
+				.thenReturn(controlTable);
+
+		// Arrange - create target
+		ISyntaxAnalyzer target =
+			new SyntaxAnalyzer(this._controlTableBuildingServiceMock);
+
+		target.setGrammar(grammar);
+
+		// Arrange - create tokens
+		List<Token> tokens =
+			Arrays.asList(new Token[] {
+				new Token(TokenKind.Identifier, "x", new Location(0, 1)),
+				new Token(TokenKind.Punctuator, ";", new Location(1, 1)),
+			});
+
+		target.setTokens(tokens);
+
+		// Act
+		SyntaxAnalyzerResult result = target.run();
+
+		// Assert
+		Assert.assertEquals(false, result.isSyntaxValid());
+		Assert.assertEquals(tokens.get(tokens.size() - 1),
+			result.getWrongToken());
+
+		Mockito.verify(this._controlTableBuildingServiceMock)
+				.buildControlTable(grammar);
 	}
 
 	@Test

@@ -14,11 +14,14 @@ import grammar_parser.Utils.Guard;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import syntax_analyzer.Analyzers.Abstract.ISyntaxAnalyzer;
+import syntax_analyzer.Enums.TokenKind;
 import syntax_analyzer.Exceptions.GrammarIsInvalidException;
 import syntax_analyzer.Exceptions.GrammarIsNotSetException;
 import syntax_analyzer.Exceptions.SyntaxAnalyzerErrorException;
@@ -30,6 +33,8 @@ public class SyntaxAnalyzer implements ISyntaxAnalyzer
 	private final IControlTableBuildingService _controlTableBuildingService;
 
 	private Grammar _grammar;
+
+	private Map<Node, TokenKind> _specialNodesMap;
 
 	private List<Token> _tokens;
 
@@ -43,12 +48,26 @@ public class SyntaxAnalyzer implements ISyntaxAnalyzer
 
 		this._grammar = null;
 		this._tokens = new ArrayList<Token>();
+
+		this._specialNodesMap = new HashMap<Node, TokenKind>();
+
+		this._specialNodesMap.put(new Node(NodeKind.Terminal, "identifier"),
+			TokenKind.Identifier);
+
+		this._specialNodesMap.put(new Node(NodeKind.Terminal, "number"),
+			TokenKind.Number);
 	}
 
 	@Override
 	public Grammar getGrammar()
 	{
 		return this._grammar;
+	}
+
+	@Override
+	public Map<Node, TokenKind> getSpecialNodesMap()
+	{
+		return new HashMap<Node, TokenKind>(this._specialNodesMap);
 	}
 
 	@Override
@@ -114,18 +133,24 @@ public class SyntaxAnalyzer implements ISyntaxAnalyzer
 			}
 			else if (topNodeKind == NodeKind.Terminal)
 			{
-				if (currentTokenId < tokensCount
-					&& topNode.getText().equals(
-						this._tokens.get(currentTokenId).getValue()))
+				if (currentTokenId < tokensCount)
 				{
-					nodesStack.pop();
+					Token currentToken = this._tokens.get(currentTokenId);
 
-					currentTokenId++;
+					if (topNode.getText().equals(
+						currentToken.getValue().toLowerCase())
+						|| currentToken.getKind().equals(
+							this._specialNodesMap.get(topNode)))
+					{
+						nodesStack.pop();
+
+						currentTokenId++;
+
+						continue;
+					}
 				}
-				else
-				{
-					break;
-				}
+
+				break;
 			}
 		}
 
@@ -160,6 +185,14 @@ public class SyntaxAnalyzer implements ISyntaxAnalyzer
 		}
 
 		this._grammar = grammar;
+	}
+
+	@Override
+	public void setSpecialNodesMap(Map<Node, TokenKind> specialNodesMap)
+	{
+		Guard.notNull(specialNodesMap, "specialNodesMap");
+
+		this._specialNodesMap = new HashMap<Node, TokenKind>(specialNodesMap);
 	}
 
 	@Override
@@ -224,11 +257,23 @@ public class SyntaxAnalyzer implements ISyntaxAnalyzer
 	private Word getWordFromToken(Token token)
 		throws NodeIsNotTerminalException
 	{
-		Node node = new Node(NodeKind.Terminal, token.getValue());
+		Node node = null;
+
+		for (Entry<Node, TokenKind> entry : this._specialNodesMap.entrySet())
+		{
+			if (entry.getValue().equals(token.getKind()))
+			{
+				node = entry.getKey();
+			}
+		}
+
+		if (node == null)
+		{
+			node = new Node(NodeKind.Terminal, token.getValue().toLowerCase());
+		}
 
 		Word word = new Word(node);
 
 		return word;
 	}
-
 }

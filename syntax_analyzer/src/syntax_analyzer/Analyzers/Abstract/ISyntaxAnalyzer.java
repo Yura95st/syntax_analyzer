@@ -1,9 +1,12 @@
 package syntax_analyzer.Analyzers.Abstract;
 
 import grammar_parser.Models.Grammar;
+import grammar_parser.Models.Node;
 
 import java.util.List;
+import java.util.Map;
 
+import syntax_analyzer.Enums.TokenKind;
 import syntax_analyzer.Exceptions.GrammarIsInvalidException;
 import syntax_analyzer.Models.SyntaxAnalyzerResult;
 import syntax_analyzer.Models.Token;
@@ -16,6 +19,13 @@ public interface ISyntaxAnalyzer
 	 * @return the grammar
 	 */
 	Grammar getGrammar();
+
+	/**
+	 * Gets the special nodes map.
+	 *
+	 * @return the special nodes map
+	 */
+	Map<Node, TokenKind> getSpecialNodesMap();
 
 	/**
 	 * Gets the tokens.
@@ -40,6 +50,14 @@ public interface ISyntaxAnalyzer
 	 * @throws GrammarIsInvalidException
 	 */
 	void setGrammar(Grammar grammar) throws GrammarIsInvalidException;
+
+	/**
+	 * Sets the special nodes map.
+	 *
+	 * @param specialNodesMap
+	 *            the special nodes map
+	 */
+	void setSpecialNodesMap(Map<Node, TokenKind> specialNodesMap);
 
 	/**
 	 * Sets the tokens.
