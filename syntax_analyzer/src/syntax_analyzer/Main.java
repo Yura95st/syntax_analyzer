@@ -25,8 +25,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import syntax_analyzer.Analyzers.Abstract.ISyntaxAnalyzer;
+import syntax_analyzer.Analyzers.Concrete.SyntaxAnalyzer;
 import syntax_analyzer.Lexers.Abstract.IPrimitiveLanguageLexer;
 import syntax_analyzer.Lexers.Concrete.PrimitiveLanguageLexer;
+import syntax_analyzer.Models.SyntaxAnalyzerResult;
 import syntax_analyzer.Models.Token;
 
 public class Main
@@ -97,6 +100,18 @@ public class Main
 			List<Token> tokens = Main._primitiveLanguageLexer.parse();
 
 			Main.printTokens(tokens);
+
+			// Create SyntaxAnalyzer
+			ISyntaxAnalyzer syntaxAnalyzer =
+				new SyntaxAnalyzer(Main._controlTableBuildingService);
+
+			syntaxAnalyzer.setGrammar(grammar);
+			syntaxAnalyzer.setTokens(tokens);
+
+			// Run the SyntaxAnalyzer
+			SyntaxAnalyzerResult syntaxAnalyzerResult = syntaxAnalyzer.run();
+
+			Main.printSyntaxAnalyzerResult(syntaxAnalyzerResult);
 		}
 		catch (Exception exception)
 		{
@@ -144,7 +159,7 @@ public class Main
 
 			Word word = controlTableItem.getWord();
 
-			System.out.println(String.format("(%1$s, %2$s) -> %3$s",
+			System.out.println(String.format("[ %1$s, %2$s ] -> %3$s",
 				controlTableItem.getNode().getText(), Main.wordToString(word),
 				Main.ruleToString(rule)));
 		}
@@ -234,6 +249,36 @@ public class Main
 		{
 			System.out.println(Main.ruleToString(rule));
 		}
+	}
+
+	private static void printSyntaxAnalyzerResult(
+		SyntaxAnalyzerResult syntaxAnalyzerResult)
+	{
+		System.out.println(String.format(
+			"----- SyntaxAnalyzerResult: -----%1$s",
+			System.getProperty("line.separator")));
+
+		if (syntaxAnalyzerResult.isSyntaxValid())
+		{
+			System.out.println("Syntax is valid.");
+		}
+		else
+		{
+			System.out.println("Syntax is invalid.");
+
+			Token wrongToken = syntaxAnalyzerResult.getWrongToken();
+
+			if (wrongToken != null)
+			{
+				System.out
+						.println(String
+								.format(
+									"Error near the token with value \"%1$s\" and offset \"%2$s\".",
+									wrongToken.getValue(), wrongToken
+											.getLocation().getOffset()));
+			}
+		}
+
 	}
 
 	private static void printTokens(List<Token> tokens)
