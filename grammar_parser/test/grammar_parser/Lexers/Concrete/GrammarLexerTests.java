@@ -41,9 +41,9 @@ public class GrammarLexerTests
 				new Node(NodeKind.Nonterminal, "A"),
 				new Node(NodeKind.Delimiter, "="),
 				new Node(NodeKind.Nonterminal, "B"),
-				new Node(NodeKind.Terminal, "\"c\""),
+				new Node(NodeKind.Terminal, "c"),
 				new Node(NodeKind.Delimiter, "|"),
-				new Node(NodeKind.Terminal, "\"d\""),
+				new Node(NodeKind.Terminal, "d"),
 				new Node(NodeKind.Delimiter, ".")
 			};
 
@@ -59,7 +59,16 @@ public class GrammarLexerTests
 
 		for (int i = 0, count = testNodes.length; i < count; i++)
 		{
-			source.append(testNodes[i].getText());
+			Node testNode = testNodes[i];
+
+			String nodeText = testNode.getText();
+
+			if (testNode.getKind() == NodeKind.Terminal)
+			{
+				nodeText = String.format("\"%1$s\"", nodeText);
+			}
+
+			source.append(nodeText);
 
 			// Append all space characters
 			for (int j = 0, countTwo = spaceCharacters.size(); j < countTwo; j++)
@@ -74,8 +83,6 @@ public class GrammarLexerTests
 		List<Node> nodes = this._grammarLexer.parse();
 
 		// Assert
-		Assert.assertEquals(testNodes.length, nodes.size());
-
 		Assert.assertEquals(Arrays.asList(testNodes), nodes);
 	}
 
@@ -83,7 +90,7 @@ public class GrammarLexerTests
 	public void parse_SourceContainsOnlyDelimiters_ReturnsDelimiterNodes()
 	{
 		// Arrange
-		String[] delimiters = new String[] {
+		String[] delimiters = {
 			"=", ",", ".", "|", ";"
 		};
 
@@ -108,7 +115,7 @@ public class GrammarLexerTests
 	{
 		// Arrange
 		String[] nonterminals =
-			new String[] {
+			{
 				"nonterminal", "nonterminal01234", "nonterminal-",
 				"nonterminal_", "prefix-nonterminal", "nonterminal_suffix",
 				"prefix-nonterminal-01234_suffix"
@@ -162,17 +169,17 @@ public class GrammarLexerTests
 	{
 		// Arrange
 		String[] terminals =
-			new String[] {
-				"\"terminal\"",
-				"\" symbols ~`!@#$%^&*()_+-={}[];':,.<>/?|\"",
-				"\" escaped \\\\ \\\" \\\' \\n \\0 \\a \\b \\f \\n \\r \\t \\u \\U \\x \\v symbols \""
+			{
+				"terminal",
+				"symbols ~`!@#$%^&*()_+-={}[];':,.<>/?|",
+				"escaped \\\\ \\\" \\\' \\n \\0 \\a \\b \\f \\n \\r \\t \\u \\U \\x \\v symbols"
 			};
 
 		for (String terminal : terminals)
 		{
 			Node node = new Node(NodeKind.Terminal, terminal);
 
-			this._grammarLexer.setSource(terminal);
+			this._grammarLexer.setSource(String.format("\"%1$s\"", terminal));
 
 			// Act
 			List<Node> nodes = this._grammarLexer.parse();
@@ -214,8 +221,6 @@ public class GrammarLexerTests
 		List<Node> nodes = this._grammarLexer.parse();
 
 		// Assert
-		Assert.assertEquals(testNodes.length, nodes.size());
-
 		Assert.assertEquals(Arrays.asList(testNodes), nodes);
 	}
 

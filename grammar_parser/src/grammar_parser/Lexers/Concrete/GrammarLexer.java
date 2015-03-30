@@ -65,6 +65,15 @@ public class GrammarLexer extends Lexer<Node> implements IGrammarLexer
 
 				this._offset += nodeValue.length();
 			}
+			else if (node.getKind() == NodeKind.Terminal)
+			{
+				String nodeText = node.getText();
+
+				// Remove quotes around the nodeText.
+				nodeText = nodeText.substring(1, nodeText.length() - 1);
+
+				node = new Node(node.getKind(), nodeText);
+			}
 
 			nodes.add(node);
 		}
