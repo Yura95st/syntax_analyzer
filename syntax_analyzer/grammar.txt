@@ -1,15 +1,72 @@
-S = B, A .
+program = block, "." .
 
-A = "+", B, A .
+block = constants-segment, variables-segment, procedures-description-segment, operator .
 
-A = .
+constants-segment = "const", constants-list, ";"
+	| .
 
-B = D, C .
+constants-list = name, "=", number,  constants-list-continuation .
 
-C = "*", D, C .
+constants-list-continuation = ",", constants-list
+	| .
 
-C = .
+variables-segment = "var", names-list, ";"
+	| .
 
-D = "(", S, ")" .
+names-list = name, names-list-continuation .
 
-D = "a" .
+names-list-continuation = ",", names-list
+	| .
+
+procedures-description-segment = procedures-list
+	| .
+
+procedures-list = "procedure", name, ";", block, ";", procedures-list-continuation .
+
+procedures-list-continuation = procedures-list
+	| .
+
+operator = name, ":=", expression
+	| "call", name
+	| "begin", operator, operators-list-continuation, "end"
+	| "if", condition, "then", operator
+	| "while", condition, "do", operator .
+
+operators-list-continuation = ";", operator, operators-list-continuation
+	| .
+
+condition = "odd", expression
+	| expression, comparison-operation, expression .
+
+comparison-operation = "<"
+	| ">"
+	| ">="
+	| "<="
+	| "#"
+	| "=" .
+
+expression = unary-operation, term, expression-continuation .
+
+expression-continuation = binary-additive-operation, term
+	| .
+
+unary-operation = "+"
+	| "-"
+	| .
+
+binary-additive-operation = "+"
+	| "-" .
+
+term = factor, factor-continuation .
+
+factor-continuation = "*", factor
+	| "/", factor
+	| .
+
+factor = name
+	| number
+	| "(", expression, ")" .
+
+name = "identifier" .
+
+number = "number" .
