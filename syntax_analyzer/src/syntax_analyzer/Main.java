@@ -1,5 +1,6 @@
 package syntax_analyzer;
 
+import grammar_parser.Enums.NodeKind;
 import grammar_parser.Enums.SpecialNodeKind;
 import grammar_parser.Lexers.Abstract.IGrammarLexer;
 import grammar_parser.Lexers.Concrete.GrammarLexer;
@@ -340,7 +341,15 @@ public class Main
 			}
 
 			stringBuilder.append(" ");
-			stringBuilder.append(node.getText());
+
+			if (node.getKind() == NodeKind.Terminal)
+			{
+				stringBuilder.append(String.format("%1$s%2$s%1$s", "\"", node.getText()));
+			}
+			else
+			{
+				stringBuilder.append(node.getText());
+			}
 		}
 
 		stringBuilder.append(" ");
