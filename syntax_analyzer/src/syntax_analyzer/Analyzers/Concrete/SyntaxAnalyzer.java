@@ -156,13 +156,21 @@ public class SyntaxAnalyzer implements ISyntaxAnalyzer
 
 		if (currentTokenId < tokensCount)
 		{
+			Token wrongToken = this._tokens.get(currentTokenId);
+
 			result =
-				new SyntaxAnalyzerResult(false,
-					this._tokens.get(currentTokenId));
+				new SyntaxAnalyzerResult(false, wrongToken);
 		}
 		else if (!nodesStack.isEmpty())
 		{
-			result = new SyntaxAnalyzerResult(false, null);
+			Token wrongToken = null;
+
+			if (tokensCount > 0)
+			{
+				wrongToken = this._tokens.get(tokensCount - 1);
+			}
+
+			result = new SyntaxAnalyzerResult(false, wrongToken);
 		}
 
 		return result;

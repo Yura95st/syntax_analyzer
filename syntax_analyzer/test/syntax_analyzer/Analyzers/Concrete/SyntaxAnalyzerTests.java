@@ -213,7 +213,7 @@ public class SyntaxAnalyzerTests
 
 		// Assert
 		Assert.assertEquals(false, result.isSyntaxValid());
-		Assert.assertEquals(null, result.getWrongToken());
+		Assert.assertEquals(tokens.get(0), result.getWrongToken());
 
 		Mockito.verify(this._controlTableBuildingServiceMock)
 				.buildControlTable(grammar);
@@ -579,8 +579,7 @@ public class SyntaxAnalyzerTests
 
 		// Assert
 		Assert.assertEquals(false, result.isSyntaxValid());
-		Assert.assertEquals(tokens.get(tokens.size() - 1),
-			result.getWrongToken());
+		Assert.assertEquals(tokens.get(tokens.size() - 1), result.getWrongToken());
 
 		Mockito.verify(this._controlTableBuildingServiceMock)
 				.buildControlTable(grammar);
