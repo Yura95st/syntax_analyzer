@@ -74,7 +74,7 @@ public class GrammarServiceTests
 	}
 
 	@Test
-	public void getFirstPlusFollowSet_FirstSetContainsEmptySet_ReturnsTheUnionOfFirstAndFollowSets()
+	public void getFirstPlusFollowSet_BothSetsContainEmptyWord_ReturnsTheUnionOfFirstAndFollowSets()
 		throws Exception
 	{
 		// Arrange - create words
@@ -84,7 +84,8 @@ public class GrammarServiceTests
 		// Arrange - create first and follow sets
 		Set<Word> firstSet =
 			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne));
-		Set<Word> followSet = new HashSet<Word>(Arrays.asList(wordTwo));
+		Set<Word> followSet =
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordTwo));
 
 		// Arrange - create testFirstSetForNodesList
 		Set<Word> testFirstPlusFollowSet =
@@ -100,7 +101,32 @@ public class GrammarServiceTests
 	}
 
 	@Test
-	public void getFirstPlusFollowSet_FirstSetDoesNotContainEmptySet_ReturnsTheFirstSet()
+	public void getFirstPlusFollowSet_FirstSetContainsEmptyWord_ReturnsTheUnionOfFirstAndFollowSetsExceptOfEmptyWord()
+		throws Exception
+	{
+		// Arrange - create words
+		Word wordOne = new Word(new Node(NodeKind.Terminal, "a"));
+		Word wordTwo = new Word(new Node(NodeKind.Terminal, "b"));
+
+		// Arrange - create first and follow sets
+		Set<Word> firstSet =
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne));
+		Set<Word> followSet = new HashSet<Word>(Arrays.asList(wordTwo));
+
+		// Arrange - create testFirstSetForNodesList
+		Set<Word> testFirstPlusFollowSet =
+			new HashSet<Word>(Arrays.asList(wordOne, wordTwo));
+
+		// Act
+		Set<Word> firstPlusFollowSet =
+			this._grammarService.getFirstPlusFollowSet(firstSet, followSet);
+
+		// Assert
+		Assert.assertEquals(testFirstPlusFollowSet, firstPlusFollowSet);
+	}
+
+	@Test
+	public void getFirstPlusFollowSet_FirstSetDoesNotContainEmptyWord_ReturnsTheFirstSet()
 		throws Exception
 	{
 		// Arrange - create words
@@ -380,6 +406,78 @@ public class GrammarServiceTests
 		Map<Node, Set<Word>> testFirstSetDictionary =
 			new HashMap<Node, Set<Word>>();
 
+		testFirstSetDictionary.put(nodeA,
+			new HashSet<Word>(Arrays.asList(wordOne, wordTwo)));
+		testFirstSetDictionary.put(nodeB,
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne)));
+		testFirstSetDictionary.put(nodeC,
+			new HashSet<Word>(Arrays.asList(wordTwo)));
+
+		// Act
+		Map<Node, Set<Word>> firstSetDictionary =
+			this._grammarService.getFirstSetDictionary(grammar);
+
+		// Assert
+		Assert.assertEquals(testFirstSetDictionary, firstSetDictionary);
+	}
+
+	@Test
+	public void getFirstSetDictionary_RuleWithEmptyNonterminals_ReturnsValidDictionary()
+		throws Exception
+	{
+		// Arrange - create nodes
+		Node nodeA = new Node(NodeKind.Nonterminal, "A");
+		Node nodeB = new Node(NodeKind.Nonterminal, "B");
+		Node nodeC = new Node(NodeKind.Nonterminal, "C");
+		Node nodeD = new Node(NodeKind.Terminal, "d");
+		Node nodeE = new Node(NodeKind.Terminal, "e");
+
+		// Arrange - create rules
+		Rule ruleOne = new Rule(nodeA);
+
+		// A = B, C .
+		ruleOne.addNode(nodeB);
+		ruleOne.addNode(nodeC);
+
+		// B = .
+		Rule ruleTwo = new Rule(nodeB);
+
+		Rule ruleThree = new Rule(nodeB);
+
+		// B = "d" .
+		ruleThree.addNode(nodeD);
+
+		// C = .
+		Rule ruleFour = new Rule(nodeC);
+
+		Rule ruleFive = new Rule(nodeC);
+
+		// C = "e" .
+		ruleFour.addNode(nodeE);
+
+		// Arrange - create grammar
+		Grammar grammar = new Grammar();
+
+		grammar.addRule(ruleOne);
+		grammar.addRule(ruleTwo);
+		grammar.addRule(ruleThree);
+		grammar.addRule(ruleFour);
+		grammar.addRule(ruleFive);
+
+		grammar.setHeadRule(ruleOne);
+
+		// Arrange - create words
+
+		// Word: d
+		Word wordOne = new Word(nodeD);
+
+		// Word: e
+		Word wordTwo = new Word(nodeE);
+
+		// Arrange - create testFirstSetDictionary
+		Map<Node, Set<Word>> testFirstSetDictionary =
+			new HashMap<Node, Set<Word>>();
+
 		testFirstSetDictionary.put(
 			nodeA,
 			new HashSet<Word>(Arrays.asList(wordOne, wordTwo,
@@ -387,7 +485,7 @@ public class GrammarServiceTests
 		testFirstSetDictionary.put(nodeB,
 			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordOne)));
 		testFirstSetDictionary.put(nodeC,
-			new HashSet<Word>(Arrays.asList(wordTwo)));
+			new HashSet<Word>(Arrays.asList(Word.getEmptyWord(), wordTwo)));
 
 		// Act
 		Map<Node, Set<Word>> firstSetDictionary =

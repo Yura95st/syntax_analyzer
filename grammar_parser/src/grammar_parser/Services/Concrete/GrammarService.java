@@ -55,6 +55,12 @@ public class GrammarService implements IGrammarService
 			firstPlusFollowSet.addAll(followSet);
 		}
 
+		if (!firstSet.contains(Word.getEmptyWord())
+			|| !followSet.contains(Word.getEmptyWord()))
+		{
+			firstPlusFollowSet.remove(Word.getEmptyWord());
+		}
+
 		return firstPlusFollowSet;
 	}
 
@@ -463,20 +469,25 @@ public class GrammarService implements IGrammarService
 				}
 				else
 				{
-					Set<Word> words = firstSetDictionary.get(firstNode);
+					Set<Word> words =
+						new HashSet<Word>(firstSetDictionary.get(firstNode));
 
-					firstSet.addAll(words);
-
-					// A = B, C. => FIRST(A) = FIRST(B) U
-					// (FIRST(C) if FIRST(B) contains empty word);
-					if (!words.contains(Word.getEmptyWord()))
+					// A = B, C. => FIRST(A) = FIRST(B) + FIRST(C)
+					if (words.contains(Word.getEmptyWord()))
 					{
-						topEntryNodes.clear();
+						if (topEntryNodes.size() > 1)
+						{
+							words.remove(Word.getEmptyWord());
+						}
+
+						topEntryNodes.remove(firstNode);
 					}
 					else
 					{
-						topEntryNodes.remove(firstNode);
+						topEntryNodes.clear();
 					}
+
+					firstSet.addAll(words);
 				}
 			}
 			else
